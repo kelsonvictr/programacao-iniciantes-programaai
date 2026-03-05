@@ -391,6 +391,50 @@ footer .heart{color:var(--accent2);animation:pulse 2s ease-in-out infinite;displ
   .prof-links{justify-content:center}
 }
 
+/* === EXERCISE BLOCKS === */
+.exercise-guided{
+  background:rgba(59,130,246,0.06);
+  border:1px solid rgba(59,130,246,0.18);
+  border-left:4px solid var(--accent5);
+  border-radius:14px;
+  padding:28px 24px;
+  margin:20px 0 8px;
+  position:relative;
+}
+.exercise-guided::before{
+  content:"👨‍🏫 COM O PROFESSOR";
+  position:absolute;top:-13px;left:18px;
+  background:linear-gradient(135deg,#3b82f6,#22d3ee);
+  color:#fff;font-size:0.7rem;font-weight:800;
+  padding:3px 12px;border-radius:20px;letter-spacing:0.5px;
+}
+.exercise-guided .exercise-title{
+  font-size:1.2rem;font-weight:800;
+  color:var(--accent3);margin:8px 0 16px;
+  display:flex;align-items:center;gap:8px;
+}
+.exercise-solo{
+  background:rgba(249,115,22,0.06);
+  border:1px solid rgba(249,115,22,0.18);
+  border-left:4px solid var(--accent7);
+  border-radius:14px;
+  padding:28px 24px;
+  margin:20px 0 8px;
+  position:relative;
+}
+.exercise-solo::before{
+  content:"✍️ INDIVIDUAL";
+  position:absolute;top:-13px;left:18px;
+  background:linear-gradient(135deg,#f97316,#a855f7);
+  color:#fff;font-size:0.7rem;font-weight:800;
+  padding:3px 12px;border-radius:20px;letter-spacing:0.5px;
+}
+.exercise-solo .exercise-title{
+  font-size:1.2rem;font-weight:800;
+  color:var(--accent7);margin:8px 0 16px;
+  display:flex;align-items:center;gap:8px;
+}
+
 /* === RESPONSIVE === */
 @media(max-width:768px){
   .container{padding:14px}
@@ -690,6 +734,57 @@ db.<span class="fn">insert</span>({<span class="st">"nome"</span>: <span class="
         </div>
       </div>
     </div>
+
+    <!-- EXERCÍCIOS 1.3 -->
+    <div class="exercise-guided">
+      <div class="exercise-title">💻 Bora Codar! — primeiro_tinydb.py</div>
+      <p style="color:var(--text-dim);font-size:0.9rem">Reproduza o código acima no seu computador. Rode o script e veja o arquivo <code>alunos.json</code> ser criado automaticamente na mesma pasta. Abra o JSON no editor e confira os dados!</p>
+    </div>
+
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — cadastro_colegas.py</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um script que cadastre <strong style="color:var(--accent7)">3 colegas da turma</strong> no banco de dados usando <code>db.insert()</code>. Cada colega deve ter: <strong style="color:var(--text)">nome</strong>, <strong style="color:var(--text)">idade</strong> e <strong style="color:var(--text)">curso favorito</strong>. Depois, use <code>print(db.all())</code> para confirmar.</p>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>💡 Dica</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="tip">
+            <span class="tip-icon">💡</span>
+            <div class="tip-content">Cada <code>db.insert()</code> recebe um dicionário. Use um nome de arquivo diferente, como <code>"colegas.json"</code>, para não misturar com o banco da aula!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggler" style="margin-top:8px">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">cadastro_colegas.py</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div>
+            <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB
+
+db = <span class="fn">TinyDB</span>(<span class="st">"colegas.json"</span>)
+
+db.<span class="fn">insert</span>({<span class="st">"nome"</span>: <span class="st">"Maria"</span>, <span class="st">"idade"</span>: <span class="num">20</span>, <span class="st">"curso"</span>: <span class="st">"JavaScript"</span>})
+db.<span class="fn">insert</span>({<span class="st">"nome"</span>: <span class="st">"Carlos"</span>, <span class="st">"idade"</span>: <span class="num">28</span>, <span class="st">"curso"</span>: <span class="st">"Python"</span>})
+db.<span class="fn">insert</span>({<span class="st">"nome"</span>: <span class="st">"Luana"</span>, <span class="st">"idade"</span>: <span class="num">19</span>, <span class="st">"curso"</span>: <span class="st">"Java"</span>})
+
+<span class="fn">print</span>(<span class="st">"✅ 3 colegas cadastrados!"</span>)
+<span class="fn">print</span>(db.<span class="fn">all</span>())</pre>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -732,6 +827,43 @@ dados = db.<span class="fn">all</span>()
       <div class="concept-title">🧪 Teste isso!</div>
       <p>Execute <code>primeiro_tinydb.py</code>, depois <strong style="color:var(--text)">feche o terminal</strong>, abra de novo e execute <code>ler_tinydb.py</code>. Os dados continuam lá! 🎉 Isso é <strong style="color:var(--accent3)">persistência</strong>.</p>
     </div>
+
+    <!-- EXERCÍCIOS 1.4 -->
+    <div class="exercise-guided">
+      <div class="exercise-title">💻 Bora Codar! — ler_tinydb.py</div>
+      <p style="color:var(--text-dim);font-size:0.9rem">Reproduza o código acima. Rode primeiro o <code>primeiro_tinydb.py</code> da seção anterior para ter dados no banco, depois rode <code>ler_tinydb.py</code>. Veja os dicionários aparecendo no terminal!</p>
+    </div>
+
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — contar_alunos.py</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um script que leia todos os alunos do banco com <code>db.all()</code> e mostre: <strong style="color:var(--accent7)">quantos alunos</strong> estão cadastrados (use <code>len()</code>) e o <strong style="color:var(--text)">nome de cada um</strong> formatado bonitinho.</p>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">contar_alunos.py</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div>
+            <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+dados = db.<span class="fn">all</span>()
+
+<span class="fn">print</span>(<span class="st">f"📊 Total de alunos: </span>{<span class="fn">len</span>(dados)}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">"Lista:"</span>)
+<span class="kw">for</span> aluno <span class="kw">in</span> dados:
+    <span class="fn">print</span>(<span class="st">f"  👤 </span>{aluno[<span class="st">'nome'</span>]}<span class="st"> — </span>{aluno[<span class="st">'idade'</span>]}<span class="st"> anos, </span>{aluno[<span class="st">'curso'</span>]}<span class="st">"</span>)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -772,6 +904,60 @@ resultado = db.<span class="fn">search</span>(<span class="fn">where</span>(<spa
       <span class="tip-icon">💡</span>
       <div class="tip-content">O <code>search()</code> sempre retorna uma <strong>lista</strong>, mesmo que encontre apenas um resultado. Se não encontrar nada, retorna uma lista vazia <code>[]</code>.</div>
     </div>
+
+    <!-- EXERCÍCIOS 1.5 -->
+    <div class="exercise-guided">
+      <div class="exercise-title">💻 Bora Codar! — buscar_tinydb.py</div>
+      <p style="color:var(--text-dim);font-size:0.9rem">Reproduza o código acima. Tente trocar <code>"Ana"</code> por <code>"João"</code> ou por um nome que não existe no banco. Veja o que o <code>search()</code> retorna em cada caso!</p>
+    </div>
+
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — buscar_por_curso.py</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um script que <strong style="color:var(--text)">busque todos os alunos</strong> de um determinado curso. Peça o curso com <code>input()</code> e use <code>db.search(where("curso") == curso)</code>. Mostre quantos alunos foram encontrados e seus nomes.</p>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>💡 Dica</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="tip">
+            <span class="tip-icon">💡</span>
+            <div class="tip-content">Use <code>where("curso")</code> em vez de <code>where("nome")</code>. O <code>search()</code> retorna uma lista — use <code>len()</code> para contar e um <code>for</code> para percorrer.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggler" style="margin-top:8px">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">buscar_por_curso.py</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div>
+            <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB, where
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+
+curso = <span class="fn">input</span>(<span class="st">"Buscar alunos do curso: "</span>)
+resultado = db.<span class="fn">search</span>(<span class="fn">where</span>(<span class="st">"curso"</span>) == curso)
+
+<span class="kw">if</span> <span class="fn">len</span>(resultado) == <span class="num">0</span>:
+    <span class="fn">print</span>(<span class="st">"Nenhum aluno encontrado nesse curso."</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">f"🔍 </span>{<span class="fn">len</span>(resultado)}<span class="st"> aluno(s) encontrado(s):"</span>)
+    <span class="kw">for</span> aluno <span class="kw">in</span> resultado:
+        <span class="fn">print</span>(<span class="st">f"  - </span>{aluno[<span class="st">'nome'</span>]}<span class="st">, </span>{aluno[<span class="st">'idade'</span>]}<span class="st"> anos"</span>)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -807,6 +993,46 @@ db.<span class="fn">update</span>({<span class="st">"idade"</span>: <span class=
       <div class="analogy-title">Traduzindo para o português</div>
       <p style="color:var(--text-dim)">"No registro <strong style="color:var(--text)">onde</strong> o nome é Ana, <strong style="color:var(--accent3)">mude</strong> a idade para 23." — É exatamente assim que o <code>update</code> funciona! Primeiro o <strong>que</strong> mudar, depois <strong>onde</strong> mudar.</p>
     </div>
+
+    <!-- EXERCÍCIOS 1.6 -->
+    <div class="exercise-guided">
+      <div class="exercise-title">💻 Bora Codar! — atualizar_tinydb.py</div>
+      <p style="color:var(--text-dim);font-size:0.9rem">Reproduza o código acima. Depois rode <code>ler_tinydb.py</code> para confirmar que a idade da Ana foi alterada para 23. Tente mudar outros campos também!</p>
+    </div>
+
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — trocar_curso.py</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um script que <strong style="color:var(--text)">peça ao usuário</strong> o nome de um aluno e o <strong style="color:var(--accent7)">novo curso</strong>. Depois, use <code>db.update()</code> para trocar o curso desse aluno. Exiba a lista atualizada no final.</p>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">trocar_curso.py</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div>
+            <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB, where
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+
+nome = <span class="fn">input</span>(<span class="st">"Nome do aluno: "</span>)
+novo_curso = <span class="fn">input</span>(<span class="st">"Novo curso: "</span>)
+
+db.<span class="fn">update</span>({<span class="st">"curso"</span>: novo_curso}, <span class="fn">where</span>(<span class="st">"nome"</span>) == nome)
+<span class="fn">print</span>(<span class="st">f"✅ Curso de </span>{nome}<span class="st"> atualizado para </span>{novo_curso}<span class="st">!"</span>)
+
+<span class="kw">for</span> aluno <span class="kw">in</span> db.<span class="fn">all</span>():
+    <span class="fn">print</span>(<span class="st">f"  - </span>{aluno[<span class="st">'nome'</span>]}<span class="st">, curso: </span>{aluno[<span class="st">'curso'</span>]}<span class="st">"</span>)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -841,6 +1067,58 @@ db.<span class="fn">remove</span>(<span class="fn">where</span>(<span class="st"
     <div class="warning">
       <span class="warning-icon">⚠️</span>
       <div style="color:var(--text-dim);font-size:0.9rem"><strong style="color:var(--accent5)">Cuidado!</strong> O <code>remove()</code> apaga <strong>permanentemente</strong> do arquivo. Diferente da lista, onde você podia "resetar" reiniciando o programa, aqui o dado realmente sumiu do disco!</div>
+    </div>
+
+    <!-- EXERCÍCIOS 1.7 -->
+    <div class="exercise-guided">
+      <div class="exercise-title">💻 Bora Codar! — remover_tinydb.py</div>
+      <p style="color:var(--text-dim);font-size:0.9rem">Reproduza o código acima. Antes de rodar, execute <code>primeiro_tinydb.py</code> para ter dados no banco. Depois rode <code>remover_tinydb.py</code> e confira com <code>ler_tinydb.py</code> que o João sumiu!</p>
+    </div>
+
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — limpar_registro.py</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um script que <strong style="color:var(--text)">peça ao usuário</strong> o nome de um aluno com <code>input()</code> e <strong style="color:var(--accent7)">remova esse aluno</strong> do banco. Depois de remover, mostre todos os registros restantes com <code>db.all()</code>.</p>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>💡 Dica</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="tip">
+            <span class="tip-icon">💡</span>
+            <div class="tip-content">Use <code>nome = input("Nome para remover: ")</code> e depois <code>db.remove(where("nome") == nome)</code>. Lembre-se de importar <code>where</code> junto com <code>TinyDB</code>!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggler" style="margin-top:8px">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">limpar_registro.py</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div>
+            <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB, where
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+
+nome = <span class="fn">input</span>(<span class="st">"Nome para remover: "</span>)
+db.<span class="fn">remove</span>(<span class="fn">where</span>(<span class="st">"nome"</span>) == nome)
+<span class="fn">print</span>(<span class="st">f"✅ '</span>{nome}<span class="st">' removido!"</span>)
+
+<span class="fn">print</span>(<span class="st">"📂 Registros restantes:"</span>)
+<span class="kw">for</span> aluno <span class="kw">in</span> db.<span class="fn">all</span>():
+    <span class="fn">print</span>(<span class="st">f"  - </span>{aluno[<span class="st">'nome'</span>]}<span class="st">, </span>{aluno[<span class="st">'idade'</span>]}<span class="st"> anos"</span>)</pre>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1239,6 +1517,55 @@ st.<span class="fn">write</span>(<span class="st">"Olá, mundo! Agora com interf
       <span class="tip-icon">📝</span>
       <div class="tip-content"><code>st.title()</code> = título grande e bonito. <code>st.write()</code> = texto normal na tela. <strong>Salve o arquivo e veja no navegador!</strong> É como o <code>print()</code>, mas bonito.</div>
     </div>
+
+    <!-- EXERCÍCIOS 2.3 -->
+    <div class="exercise-guided">
+      <div class="exercise-title">💻 Bora Codar! — app_texto.py</div>
+      <p style="color:var(--text-dim);font-size:0.9rem">Copie o código acima, salve como <code>app_texto.py</code> e rode com <code>streamlit run app_texto.py</code>. Veja o resultado no navegador — seu primeiro app com interface gráfica!</p>
+    </div>
+
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — app_apresentacao.py</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um app que se apresente! Use <code>st.title()</code> com seu nome e <code>st.write()</code> para exibir pelo menos <strong style="color:var(--accent7)">3 informações</strong> sobre você (idade, cidade, hobby favorito). Bônus: use <code>st.header()</code> para subtítulos.</p>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>💡 Dica</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="tip">
+            <span class="tip-icon">💡</span>
+            <div class="tip-content"><code>st.header()</code> é um título menor que <code>st.title()</code>. Use para separar seções do seu app. Cada <code>st.write()</code> adiciona um parágrafo na tela.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggler" style="margin-top:8px">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_apresentacao.py</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div>
+            <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+st.<span class="fn">title</span>(<span class="st">"👋 Olá, eu sou o(a) Ana!"</span>)
+st.<span class="fn">header</span>(<span class="st">"Sobre mim"</span>)
+st.<span class="fn">write</span>(<span class="st">"🎂 Tenho 22 anos"</span>)
+st.<span class="fn">write</span>(<span class="st">"📍 Moro em João Pessoa"</span>)
+st.<span class="fn">write</span>(<span class="st">"🎮 Adoro jogar videogame"</span>)
+st.<span class="fn">write</span>(<span class="st">"💻 Estou aprendendo Python!"</span>)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1276,6 +1603,42 @@ st.<span class="fn">write</span>(<span class="st">f"Olá </span>{nome}<span clas
       <div class="concept-title">🔗 Conexão com o que você já sabe</div>
       <p>Lembra do <code>input()</code> do terminal? O <code>st.text_input()</code> é a <strong style="color:var(--text)">mesma coisa</strong>, mas aparece como uma <strong style="color:var(--accent3)">caixinha bonita no navegador</strong>! E o <code>st.number_input()</code> já cuida da conversão para número — sem precisar de <code>int()</code> ao redor.</p>
     </div>
+
+    <!-- EXERCÍCIOS 2.4 -->
+    <div class="exercise-guided">
+      <div class="exercise-title">💻 Bora Codar! — app_input.py</div>
+      <p style="color:var(--text-dim);font-size:0.9rem">Reproduza o código acima, rode com <code>streamlit run app_input.py</code> e preencha os campos. Veja como a mensagem atualiza automaticamente conforme você digita!</p>
+    </div>
+
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — app_cadastro_simples.py</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um app de cadastro simples com <strong style="color:var(--accent7)">3 campos</strong>: nome (<code>text_input</code>), idade (<code>number_input</code>) e curso (<code>text_input</code>). Ao preencher, mostre com <code>st.write()</code> um resumo: <em>"Aluno: Ana, 22 anos, cursa Python"</em>.</p>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_cadastro_simples.py</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div>
+            <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+st.<span class="fn">title</span>(<span class="st">"Cadastro Simples"</span>)
+nome = st.<span class="fn">text_input</span>(<span class="st">"Nome:"</span>)
+idade = st.<span class="fn">number_input</span>(<span class="st">"Idade:"</span>, min_value=<span class="num">0</span>)
+curso = st.<span class="fn">text_input</span>(<span class="st">"Curso:"</span>)
+
+st.<span class="fn">write</span>(<span class="st">f"Aluno: </span>{nome}<span class="st">, </span>{<span class="fn">int</span>(idade)}<span class="st"> anos, cursa </span>{curso}<span class="st">"</span>)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1310,6 +1673,44 @@ st.<span class="fn">title</span>(<span class="st">"Botão Mágico"</span>)
     <div class="analogy">
       <div class="analogy-title">É o if que você já conhece!</div>
       <p style="color:var(--text-dim)">É como o <code>if</code> que você já conhece! Se o botão for clicado (<code>True</code>), executa o código dentro. Se não for clicado (<code>False</code>), pula. <strong style="color:var(--text)">Simples assim!</strong></p>
+    </div>
+
+    <!-- EXERCÍCIOS 2.5 -->
+    <div class="exercise-guided">
+      <div class="exercise-title">💻 Bora Codar! — app_botao.py</div>
+      <p style="color:var(--text-dim);font-size:0.9rem">Reproduza o código acima no seu computador. Rode com <code>streamlit run app_botao.py</code> e clique no botão para ver a mensagem aparecer!</p>
+    </div>
+
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — app_saudacao.py</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um app que peça o <strong style="color:var(--text)">nome do usuário</strong> com <code>st.text_input()</code> e tenha um <strong style="color:var(--accent7)">botão "Saudar"</strong>. Ao clicar, mostre <code>st.success(f"Olá, {nome}! 👋")</code>. Se o nome estiver vazio, mostre <code>st.error("Digite seu nome!")</code>.</p>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_saudacao.py</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div>
+            <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+st.<span class="fn">title</span>(<span class="st">"Saudação"</span>)
+nome = st.<span class="fn">text_input</span>(<span class="st">"Qual seu nome?"</span>)
+
+<span class="kw">if</span> st.<span class="fn">button</span>(<span class="st">"Saudar"</span>):
+    <span class="kw">if</span> nome.<span class="fn">strip</span>() == <span class="st">""</span>:
+        st.<span class="fn">error</span>(<span class="st">"Digite seu nome!"</span>)
+    <span class="kw">else</span>:
+        st.<span class="fn">success</span>(<span class="st">f"Olá, </span>{nome}<span class="st">! 👋"</span>)</pre>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1382,6 +1783,45 @@ st.<span class="fn">table</span>(dados)</pre>
     <div class="tip">
       <span class="tip-icon">📊</span>
       <div class="tip-content">Lembra do <code>for</code> que a gente usava para imprimir a lista? O <code>st.table()</code> faz isso <strong>automaticamente e formatado</strong>! Basta passar a lista de dicionários e ele monta a tabela bonita.</div>
+    </div>
+
+    <!-- EXERCÍCIOS 2.7 -->
+    <div class="exercise-guided">
+      <div class="exercise-title">💻 Bora Codar! — app_tabela.py</div>
+      <p style="color:var(--text-dim);font-size:0.9rem">Copie o código acima, rode com <code>streamlit run app_tabela.py</code> e veja a tabela no navegador. Adicione mais dicionários à lista <code>dados</code> e veja como a tabela cresce automaticamente!</p>
+    </div>
+
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — app_tabela_turma.py</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um app que mostre uma <strong style="color:var(--text)">tabela da turma</strong> com pelo menos <strong style="color:var(--accent7)">4 colegas</strong>, cada um com nome, idade e curso favorito. Use <code>st.title()</code> para o título e <code>st.table()</code> para a tabela.</p>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_tabela_turma.py</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div>
+            <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+st.<span class="fn">title</span>(<span class="st">"👥 Minha Turma"</span>)
+
+turma = [
+    {<span class="st">"nome"</span>: <span class="st">"Ana"</span>, <span class="st">"idade"</span>: <span class="num">22</span>, <span class="st">"curso"</span>: <span class="st">"Python"</span>},
+    {<span class="st">"nome"</span>: <span class="st">"João"</span>, <span class="st">"idade"</span>: <span class="num">25</span>, <span class="st">"curso"</span>: <span class="st">"Java"</span>},
+    {<span class="st">"nome"</span>: <span class="st">"Maria"</span>, <span class="st">"idade"</span>: <span class="num">20</span>, <span class="st">"curso"</span>: <span class="st">"JavaScript"</span>},
+    {<span class="st">"nome"</span>: <span class="st">"Carlos"</span>, <span class="st">"idade"</span>: <span class="num">28</span>, <span class="st">"curso"</span>: <span class="st">"Python"</span>}
+]
+st.<span class="fn">table</span>(turma)</pre>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1477,6 +1917,62 @@ col2.<span class="fn">metric</span>(<span class="st">"Faturamento"</span>, <span
     </div>
   </div>
 </section>
+
+<!-- EXERCÍCIOS 2.9 -->
+<div class="exercise-guided">
+  <div class="exercise-title">💻 Bora Codar! — app_abas.py</div>
+  <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:12px">Reproduza os dois exemplos acima (<code>app_abas.py</code> e <code>app_layout.py</code>) no seu computador. Rode com <code>streamlit run</code> e navegue entre as abas!</p>
+</div>
+
+<div class="exercise-solo">
+  <div class="exercise-title">💪 Sua Vez! — app_duas_abas.py</div>
+  <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:12px">Crie um app com <strong style="color:var(--text)">2 abas</strong>: <strong style="color:var(--accent5)">"📋 Cadastro"</strong> e <strong style="color:var(--accent3)">"📊 Resumo"</strong>. Na aba Cadastro, peça nome e idade com <code>text_input</code>/<code>number_input</code>. Na aba Resumo, mostre 2 <code>st.metric()</code> lado a lado com colunas.</p>
+
+  <div class="toggler">
+    <div class="toggler-header" onclick="toggleSection(this)">
+      <span>💡 Dica</span>
+      <span class="toggler-arrow">▼</span>
+    </div>
+    <div class="toggler-body">
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <div class="tip-content">Use <code>aba1, aba2 = st.tabs([...])</code> e dentro de cada <code>with</code> coloque os elementos. Para as métricas lado a lado: <code>col1, col2 = st.columns(2)</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toggler" style="margin-top:8px">
+    <div class="toggler-header" onclick="toggleSection(this)">
+      <span>✅ Ver solução</span>
+      <span class="toggler-arrow">▼</span>
+    </div>
+    <div class="toggler-body">
+      <div class="code-block with-lines" style="position:relative">
+        <div class="code-header">
+          <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_duas_abas.py</span><span class="lang-badge python">Python</span></div>
+        </div>
+        <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div>
+        <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+st.<span class="fn">title</span>(<span class="st">"App com Abas"</span>)
+aba1, aba2 = st.<span class="fn">tabs</span>([<span class="st">"📋 Cadastro"</span>, <span class="st">"📊 Resumo"</span>])
+
+<span class="kw">with</span> aba1:
+    nome = st.<span class="fn">text_input</span>(<span class="st">"Seu nome:"</span>)
+    idade = st.<span class="fn">number_input</span>(<span class="st">"Sua idade:"</span>, min_value=<span class="num">0</span>)
+    <span class="kw">if</span> st.<span class="fn">button</span>(<span class="st">"Salvar"</span>):
+        st.<span class="fn">success</span>(<span class="st">f"Olá </span>{nome}<span class="st">, </span>{<span class="fn">int</span>(idade)}<span class="st"> anos!"</span>)
+
+<span class="kw">with</span> aba2:
+    col1, col2 = st.<span class="fn">columns</span>(<span class="num">2</span>)
+    col1.<span class="fn">metric</span>(<span class="st">"Usuários"</span>, <span class="num">1</span>)
+    col2.<span class="fn">metric</span>(<span class="st">"Idade média"</span>, <span class="fn">int</span>(idade))</pre>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="section-connector"><div class="line"></div></div>
 
@@ -2071,6 +2567,72 @@ aba_estoque, aba_cadastro, aba_venda, aba_vendas = st.<span class="fn">tabs</spa
         col1, col2 = st.<span class="fn">columns</span>(<span class="num">2</span>)
         col1.<span class="fn">metric</span>(<span class="st">"Total de vendas"</span>, <span class="fn">len</span>(lista_vendas))
         col2.<span class="fn">metric</span>(<span class="st">"Faturamento total"</span>, <span class="st">f"R$ </span>{soma_total<span class="st">:.2f}"</span>)</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- DESAFIO: REMOVER PRODUTO -->
+<section class="step-section">
+  <div class="card">
+    <div class="exercise-solo">
+      <div class="exercise-title">💪 Sua Vez! — Desafio Final</div>
+      <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:16px">Adicione uma <strong style="color:var(--text)">5ª aba</strong> ao sistema de loja chamada <strong style="color:var(--accent7)">"🗑️ Remover Produto"</strong>. Nela, o usuário deve poder escolher um produto pelo <code>selectbox</code> e removê-lo do estoque com um botão.</p>
+
+      <p style="color:var(--text-dim);font-size:0.9rem"><strong style="color:var(--accent7)">Requisitos:</strong></p>
+      <div style="display:grid;gap:6px;margin:8px 0 16px;font-size:0.88rem;color:var(--text-dim)">
+        <div>1️⃣ Criar a variável <code>aba_remover</code> junto com as outras abas</div>
+        <div>2️⃣ Usar <code>st.selectbox()</code> para escolher o produto</div>
+        <div>3️⃣ Usar <code>estoque.remove(where("id") == ...)</code> para deletar</div>
+        <div>4️⃣ Mostrar <code>st.success()</code> após remover</div>
+      </div>
+
+      <div class="toggler">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>💡 Dica</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="tip">
+            <span class="tip-icon">💡</span>
+            <div class="tip-content">Reutilize a mesma lógica da aba de vendas para montar o <code>selectbox</code> com os produtos. A diferença é que em vez de <code>vendas.insert()</code> + <code>estoque.update()</code>, você vai usar <code>estoque.remove()</code>.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggler" style="margin-top:8px">
+        <div class="toggler-header" onclick="toggleSection(this)">
+          <span>✅ Ver solução</span>
+          <span class="toggler-arrow">▼</span>
+        </div>
+        <div class="toggler-body">
+          <div class="code-block with-lines" style="position:relative">
+            <div class="code-header">
+              <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              <div style="display:flex;align-items:center;gap:8px"><span class="filename">app.py — Aba Remover (nova)</span><span class="lang-badge python">Python</span></div>
+            </div>
+            <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div>
+            <pre>
+<span class="cm"># Na linha das abas, adicione "🗑️ Remover Produto":</span>
+<span class="cm"># aba_estoque, aba_cadastro, aba_venda, aba_vendas, aba_remover = st.tabs([...])</span>
+
+<span class="kw">with</span> aba_remover:
+    st.<span class="fn">header</span>(<span class="st">"Remover produto do estoque"</span>)
+    produtos = estoque.<span class="fn">all</span>()
+    <span class="kw">if</span> <span class="fn">len</span>(produtos) == <span class="num">0</span>:
+        st.<span class="fn">info</span>(<span class="st">"Nenhum produto para remover."</span>)
+    <span class="kw">else</span>:
+        opcoes = [<span class="st">f"#</span>{p[<span class="st">'id'</span>]}<span class="st"> - </span>{p[<span class="st">'nome'</span>]}<span class="st">"</span> <span class="kw">for</span> p <span class="kw">in</span> produtos]
+        escolha = st.<span class="fn">selectbox</span>(<span class="st">"Produto para remover"</span>, opcoes, key=<span class="st">"rem_prod"</span>)
+        id_escolhido = <span class="fn">int</span>(escolha.<span class="fn">split</span>(<span class="st">"#"</span>)[<span class="num">1</span>].<span class="fn">split</span>(<span class="st">" "</span>)[<span class="num">0</span>])
+        <span class="kw">if</span> st.<span class="fn">button</span>(<span class="st">"🗑️ Remover Produto"</span>, type=<span class="st">"primary"</span>):
+            estoque.<span class="fn">remove</span>(<span class="fn">where</span>(<span class="st">"id"</span>) == id_escolhido)
+            st.<span class="fn">success</span>(<span class="st">"✅ Produto removido com sucesso!"</span>)
+            st.<span class="fn">rerun</span>()</pre>
+          </div>
         </div>
       </div>
     </div>
