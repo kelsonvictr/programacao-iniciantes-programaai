@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programação para Iniciantes — TinyDB & Streamlit | Programa AI</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Nunito:wght@400;600;700;800;900&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a12;
+  --surface:#12121e;
+  --surface2:#1a1a2e;
+  --surface3:#222240;
+  --accent:#6c63ff;
+  --accent2:#ff6b6b;
+  --accent3:#4ecdc4;
+  --accent4:#45b7d1;
+  --accent5:#f7b731;
+  --accent6:#a78bfa;
+  --accent7:#06d6a0;
+  --python:#3776ab;
+  --tinydb:#f7b731;
+  --streamlit:#ff4b4b;
+  --text:#eef0f8;
+  --text-dim:#8892b0;
+  --code-bg:#0d0d1a;
+  --glow-accent:rgba(108,99,255,0.15);
+  --glow-python:rgba(55,118,171,0.15);
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+
+/* === ANIMATED BACKGROUND === */
+.bg-grid{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(108,99,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,0.03) 1px,transparent 1px);background-size:50px 50px}
+.bg-orbs{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.bg-orbs .orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:0.08;animation:orbFloat 25s ease-in-out infinite}
+.bg-orbs .orb:nth-child(1){width:600px;height:600px;background:var(--python);top:-150px;left:-150px;animation-delay:0s}
+.bg-orbs .orb:nth-child(2){width:500px;height:500px;background:var(--accent3);bottom:-150px;right:-150px;animation-delay:-8s}
+.bg-orbs .orb:nth-child(3){width:400px;height:400px;background:var(--streamlit);top:40%;left:60%;animation-delay:-16s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.1)}66%{transform:translate(-40px,60px) scale(0.9)}}
+
+/* === PROGRESS BAR === */
+.progress-track{position:fixed;top:0;left:0;width:100%;height:4px;z-index:200;background:rgba(255,255,255,0.03)}
+.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--python),var(--accent5),var(--streamlit));transition:width 0.3s;border-radius:0 2px 2px 0;box-shadow:0 0 20px var(--python)}
+
+/* === CONTAINER === */
+.container{max-width:960px;margin:0 auto;padding:20px;position:relative;z-index:1}
+
+/* === NAV SIDEBAR === */
+.sidebar-nav{position:fixed;left:0;top:0;width:290px;height:100vh;background:var(--surface);border-right:1px solid rgba(108,99,255,0.1);z-index:100;transform:translateX(-100%);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;padding:24px 0}
+.sidebar-nav.open{transform:translateX(0)}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.sidebar-overlay.open{opacity:1;pointer-events:auto}
+.sidebar-header{padding:0 24px 20px;border-bottom:1px solid rgba(255,255,255,0.05);margin-bottom:12px}
+.sidebar-header h3{font-size:1rem;color:var(--accent);font-weight:800;display:flex;align-items:center;gap:8px}
+.sidebar-group{padding:8px 16px}
+.sidebar-group-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--text-dim);padding:8px;font-weight:700}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;color:var(--text-dim);text-decoration:none;font-size:0.85rem;font-weight:600;transition:all 0.2s;cursor:pointer}
+.sidebar-link:hover,.sidebar-link.active{background:rgba(108,99,255,0.1);color:var(--text)}
+.sidebar-link .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sidebar-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-dim);font-size:1.4rem;cursor:pointer;padding:4px 8px;border-radius:8px;transition:all 0.2s}
+.sidebar-close:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+
+.menu-toggle{position:fixed;top:16px;left:16px;z-index:98;background:var(--surface2);border:1px solid rgba(108,99,255,0.2);color:var(--text);width:44px;height:44px;border-radius:12px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.menu-toggle:hover{background:var(--accent);border-color:var(--accent)}
+
+/* === HERO === */
+.hero{text-align:center;padding:100px 20px 70px;position:relative}
+.hero-icons{font-size:3.5rem;display:flex;justify-content:center;gap:16px;margin-bottom:24px;animation:fadeSlideDown 0.8s ease both}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--accent),var(--accent6));color:white;font-weight:800;font-size:0.8rem;padding:6px 20px;border-radius:50px;text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;animation:fadeSlideDown 0.8s ease 0.1s both}
+.hero h1{font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:900;background:linear-gradient(135deg,var(--text),var(--accent4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:16px;animation:fadeSlideDown 0.8s ease 0.2s both}
+.hero .subtitle{font-size:1.15rem;color:var(--text-dim);max-width:650px;margin:0 auto 28px;animation:fadeSlideDown 0.8s ease 0.35s both}
+.hero-stack{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;animation:fadeSlideDown 0.8s ease 0.5s both}
+.stack-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:50px;font-size:0.8rem;font-weight:700;border:1px solid rgba(255,255,255,0.08);background:var(--surface2)}
+.stack-chip.python{border-color:rgba(55,118,171,0.3);color:var(--python)}
+.stack-chip.tinydb{border-color:rgba(247,183,49,0.3);color:var(--tinydb)}
+.stack-chip.streamlit{border-color:rgba(255,75,75,0.3);color:var(--streamlit)}
+
+@keyframes fadeSlideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.5)}}
+@keyframes typing{from{width:0}to{width:100%}}
+@keyframes blink{50%{border-color:transparent}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* === CHAPTER DIVIDER === */
+.chapter-divider{text-align:center;padding:60px 20px 30px;position:relative}
+.chapter-divider::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,rgba(108,99,255,0.3),transparent)}
+.chapter-icon{font-size:3rem;display:block;margin-bottom:12px;animation:bounce 2s ease-in-out infinite}
+.chapter-number{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent6));color:white;font-weight:900;font-size:0.75rem;padding:4px 16px;border-radius:50px;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
+.chapter-divider h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;margin-bottom:8px}
+.chapter-divider h2.grad-tinydb{background:linear-gradient(135deg,var(--accent5),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.chapter-divider h2.grad-streamlit{background:linear-gradient(135deg,var(--streamlit),var(--accent5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.chapter-divider h2.grad-projeto{background:linear-gradient(135deg,var(--accent4),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.chapter-subtitle{color:var(--text-dim);font-size:1rem;max-width:500px;margin:0 auto}
+
+/* === SECTION STEP === */
+.step-section{margin:30px 0;opacity:0;transform:translateY(40px);transition:opacity 0.7s ease,transform 0.7s ease}
+.step-section.visible{opacity:1;transform:translateY(0)}
+.step-header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.step-number{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.3rem;color:var(--bg);flex-shrink:0;position:relative}
+.step-number::after{content:'';position:absolute;inset:-3px;border-radius:17px;background:inherit;opacity:0.25;z-index:-1}
+.sn-red{background:var(--accent2)}
+.sn-blue{background:var(--accent4)}
+.sn-green{background:var(--accent3)}
+.sn-yellow{background:var(--accent5)}
+.sn-purple{background:var(--accent6)}
+.sn-main{background:var(--accent)}
+
+/* === CARDS === */
+.card{background:var(--surface);border:1px solid rgba(255,255,255,0.05);border-radius:20px;padding:32px;margin-bottom:24px;position:relative;overflow:hidden;transition:border-color 0.3s}
+.card:hover{border-color:rgba(108,99,255,0.15)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.3s}
+.card:hover::before{opacity:1}
+
+/* === CONCEPT BOX === */
+.concept{background:var(--surface2);border-radius:16px;padding:24px;margin:16px 0;border-left:4px solid var(--accent5)}
+.concept-title{font-family:'Caveat',cursive;font-size:1.4rem;color:var(--accent5);margin-bottom:8px}
+.concept p{color:var(--text-dim);font-size:0.95rem}
+
+/* === ANALOGY === */
+.analogy{background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(69,183,209,0.06));border:1px solid rgba(167,139,250,0.15);border-radius:16px;padding:24px;margin:16px 0;position:relative}
+.analogy::before{content:'💡';font-size:1.6rem;position:absolute;top:-14px;left:20px}
+.analogy-title{font-family:'Caveat',cursive;font-size:1.3rem;color:var(--accent6);margin-bottom:8px}
+
+/* === TIP / WARNING === */
+.tip{background:rgba(78,205,196,0.06);border:1px solid rgba(78,205,196,0.15);border-radius:14px;padding:20px 24px;margin:16px 0;display:flex;gap:12px;align-items:flex-start}
+.tip-icon{font-size:1.3rem;flex-shrink:0;margin-top:2px}
+.tip-content{color:var(--text-dim);font-size:0.92rem}
+.tip-content strong{color:var(--accent3)}
+
+.warning{background:rgba(247,183,49,0.06);border:1px solid rgba(247,183,49,0.15);border-radius:14px;padding:20px 24px;margin:16px 0;display:flex;gap:12px;align-items:flex-start}
+.warning-icon{font-size:1.3rem;flex-shrink:0;margin-top:2px}
+
+/* === CODE BLOCKS === */
+.code-block{background:var(--code-bg);border-radius:14px;margin:16px 0;overflow:hidden;border:1px solid rgba(255,255,255,0.05);position:relative}
+.code-header{background:rgba(255,255,255,0.03);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.05)}
+.code-header .dots{display:flex;gap:6px}
+.code-header .dot{width:10px;height:10px;border-radius:50%}
+.code-header .dot:nth-child(1){background:#ff5f57}
+.code-header .dot:nth-child(2){background:#febc2e}
+.code-header .dot:nth-child(3){background:#28c840}
+.code-header .filename{color:var(--text-dim);font-size:0.78rem;font-family:'JetBrains Mono',monospace}
+.code-header .lang-badge{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.code-header .lang-badge.python{background:rgba(55,118,171,0.15);color:var(--python)}
+.code-header .lang-badge.json{background:rgba(247,183,49,0.15);color:var(--accent5)}
+.code-header .lang-badge.terminal{background:rgba(78,205,196,0.15);color:var(--accent3)}
+pre{padding:20px;margin:0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.85;color:#c9d1d9;tab-size:4}
+.code-block.with-lines pre{padding-left:56px}
+.code-block .line-numbers{position:absolute;left:0;top:44px;padding:20px 12px 20px 16px;color:rgba(255,255,255,0.12);font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.85;text-align:right;user-select:none;border-right:1px solid rgba(255,255,255,0.03)}
+
+/* Python Syntax */
+.kw{color:#c4a7e7}.fn{color:#82aaff}.st{color:#c3e88d}.cm{color:#546e7a;font-style:italic}.an{color:#ffcb6b}.tp{color:#f78c6c}.nb{color:#89ddff}.op{color:#c9d1d9}.num{color:#f78c6c}.bool{color:#82aaff}.bi{color:#82aaff}.dec{color:#ffcb6b}.param{color:#f78c6c}
+
+/* === FLOW DIAGRAM === */
+.flow-container{display:flex;flex-direction:column;align-items:center;gap:0;margin:24px 0}
+.flow-box{background:var(--surface2);border:2px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px 24px;text-align:center;font-weight:700;font-size:0.9rem;position:relative;min-width:240px;transition:all 0.3s;cursor:default}
+.flow-box:hover{transform:scale(1.03);border-color:rgba(255,255,255,0.15)}
+.flow-box .label{font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;font-weight:800}
+.flow-box.fb-python{border-color:var(--python);background:rgba(55,118,171,0.06)}
+.flow-box.fb-tinydb{border-color:var(--accent5);background:rgba(247,183,49,0.06)}
+.flow-box.fb-file{border-color:var(--accent3);background:rgba(78,205,196,0.06)}
+.flow-box.fb-result{border-color:var(--accent7);background:rgba(6,214,160,0.06)}
+.flow-arrow{width:2px;height:32px;position:relative;display:flex;align-items:center;justify-content:center}
+.flow-arrow::before{content:'';position:absolute;width:2px;height:100%;background:linear-gradient(to bottom,var(--text-dim),transparent)}
+.flow-arrow::after{content:'▼';position:absolute;bottom:-8px;color:var(--text-dim);font-size:0.65rem}
+.flow-arrow .flow-label{position:absolute;left:24px;top:50%;transform:translateY(-50%);font-size:0.85rem;color:var(--accent5);font-weight:700;white-space:nowrap;font-family:'Caveat',cursive}
+.flow-arrow .flow-label.right{left:auto;right:24px}
+
+/* === INTERACTIVE DB VISUALIZATION === */
+.db-table{background:var(--surface2);border-radius:14px;overflow:hidden;margin:16px 0;border:1px solid rgba(255,255,255,0.06)}
+.db-table-header{background:rgba(69,183,209,0.1);padding:12px 20px;font-weight:800;font-size:0.85rem;color:var(--accent4);display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.db-table table{width:100%;border-collapse:collapse;font-size:0.82rem;font-family:'JetBrains Mono',monospace}
+.db-table th{padding:10px 16px;text-align:left;color:var(--text-dim);font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02)}
+.db-table td{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text)}
+.db-table tr:last-child td{border-bottom:none}
+.db-table tr{transition:background 0.2s}
+.db-table tr:hover td{background:rgba(108,99,255,0.04)}
+.db-row-new{animation:rowSlideIn 0.5s ease both}
+@keyframes rowSlideIn{from{opacity:0;transform:translateX(-20px);background:rgba(108,99,255,0.1)}to{opacity:1;transform:translateX(0);background:transparent}}
+
+/* === ANNOTATION GRID === */
+.annotation-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+.annotation-card{background:var(--surface2);border-radius:14px;padding:18px;border:1px solid rgba(255,255,255,0.05);transition:all 0.3s;cursor:default}
+.annotation-card:hover{border-color:rgba(108,99,255,0.2);transform:translateY(-3px)}
+.annotation-card .anno-name{font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--accent5);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.annotation-card .anno-desc{font-size:0.8rem;color:var(--text-dim);line-height:1.5}
+
+/* === TOGGLER === */
+.toggler{background:var(--surface);border-radius:14px;overflow:hidden;margin:16px 0;border:1px solid rgba(255,255,255,0.05)}
+.toggler-header{padding:16px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background 0.3s;font-weight:700;font-size:0.95rem;user-select:none}
+.toggler-header:hover{background:rgba(255,255,255,0.02)}
+.toggler-arrow{transition:transform 0.3s;font-size:1rem;color:var(--text-dim)}
+.toggler-header.open .toggler-arrow{transform:rotate(180deg)}
+.toggler-body{max-height:0;overflow:hidden;transition:max-height 0.5s ease;padding:0 24px}
+.toggler-body.open{max-height:8000px;padding:0 24px 24px}
+
+/* === TERMINAL DEMO === */
+.demo-terminal{background:#080816;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);margin:16px 0}
+.demo-terminal .term-header{background:rgba(255,255,255,0.03);padding:12px 16px;display:flex;align-items:center;gap:8px}
+.demo-terminal .term-header .dots{display:flex;gap:6px}
+.demo-terminal .term-header .dot{width:10px;height:10px;border-radius:50%}
+.demo-terminal .term-header .dot:nth-child(1){background:#ff5f57}
+.demo-terminal .term-header .dot:nth-child(2){background:#febc2e}
+.demo-terminal .term-header .dot:nth-child(3){background:#28c840}
+.demo-terminal .term-header span{color:var(--text-dim);font-size:0.78rem;font-family:'JetBrains Mono',monospace;margin-left:8px}
+.demo-body{padding:20px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;min-height:200px;color:#c4b5fd;line-height:1.9;max-height:400px;overflow-y:auto}
+.demo-line{opacity:0;transform:translateX(-10px);transition:all 0.4s ease}
+.demo-line.show{opacity:1;transform:translateX(0)}
+.demo-line .op-insert{color:#49cc90;font-weight:700}
+.demo-line .op-read{color:#61affe;font-weight:700}
+.demo-line .op-search{color:#fca130;font-weight:700}
+.demo-line .op-update{color:#50e3c2;font-weight:700}
+.demo-line .op-remove{color:#f93e3e;font-weight:700}
+.demo-line .url{color:var(--text)}
+.demo-line .status-ok{color:#49cc90;font-weight:700}
+.demo-line .json-key{color:#82aaff}
+.demo-line .json-val{color:#c3e88d}
+.demo-line .json-num{color:#f78c6c}
+.demo-line .arrow{color:var(--accent5)}
+.demo-line .dim{color:var(--text-dim)}
+
+.btn-demo{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--accent),#5a52e0);color:white;border:none;padding:12px 28px;border-radius:12px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.3s;margin:8px 4px}
+.btn-demo:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(108,99,255,0.3)}
+.btn-demo:active{transform:translateY(0)}
+.btn-demo.btn-python{background:linear-gradient(135deg,var(--python),#2a5d8f)}
+.btn-demo.btn-python:hover{box-shadow:0 8px 30px rgba(55,118,171,0.3)}
+.btn-demo.btn-red{background:linear-gradient(135deg,var(--accent2),#e05555)}
+.btn-demo.btn-yellow{background:linear-gradient(135deg,var(--accent5),#e0a020)}
+.btn-demo.btn-teal{background:linear-gradient(135deg,var(--accent3),#3ab0a5)}
+.btn-demo.btn-green{background:linear-gradient(135deg,var(--accent7),#04b386)}
+.btn-demo.btn-small{padding:8px 18px;font-size:0.82rem}
+
+/* === KEYWORD MAP === */
+.keyword-map{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
+.keyword-chip{background:var(--surface2);border-radius:12px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,0.05);transition:all 0.3s;cursor:default}
+.keyword-chip:hover{border-color:rgba(255,255,255,0.12);transform:translateY(-3px)}
+.keyword-chip .emoji{font-size:1.4rem;display:block;margin-bottom:6px}
+.keyword-chip .kw-name{font-weight:800;font-size:0.82rem;color:var(--accent5);display:block;margin-bottom:4px}
+.keyword-chip .kw-desc{font-size:0.72rem;color:var(--text-dim);margin-top:4px;display:block}
+
+/* === PULSE BADGE === */
+.pulse-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.25);padding:4px 14px;border-radius:50px;font-size:0.78rem;color:var(--accent);font-weight:700}
+.pulse-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+
+/* === SECTION CONNECTOR === */
+.section-connector{display:flex;justify-content:center;margin:10px 0 20px}
+.section-connector .line{width:2px;height:50px;background:linear-gradient(to bottom,rgba(108,99,255,0.15),transparent)}
+
+/* === STAGGER ANIMATION === */
+.stagger>*{opacity:0;transform:translateY(20px);transition:all 0.5s ease}
+.stagger.visible>*:nth-child(1){transition-delay:.05s}
+.stagger.visible>*:nth-child(2){transition-delay:.1s}
+.stagger.visible>*:nth-child(3){transition-delay:.15s}
+.stagger.visible>*:nth-child(4){transition-delay:.2s}
+.stagger.visible>*:nth-child(5){transition-delay:.25s}
+.stagger.visible>*:nth-child(6){transition-delay:.3s}
+.stagger.visible>*:nth-child(7){transition-delay:.35s}
+.stagger.visible>*:nth-child(8){transition-delay:.4s}
+.stagger.visible>*:nth-child(9){transition-delay:.45s}
+.stagger.visible>*:nth-child(10){transition-delay:.5s}
+.stagger.visible>*{opacity:1;transform:translateY(0)}
+
+/* === ENDPOINT TABLE (reused for CRUD table) === */
+.endpoint-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem}
+.endpoint-table th{text-align:left;padding:10px 14px;color:var(--text-dim);font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.endpoint-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.endpoint-table tr:hover td{background:rgba(108,99,255,0.03)}
+.endpoint-table code{font-family:'JetBrains Mono',monospace;font-size:0.8rem}
+
+/* === CRUD BADGE === */
+.crud-badge{display:inline-block;padding:2px 10px;border-radius:6px;font-weight:800;font-size:0.7rem;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px}
+.crud-badge.create{background:rgba(73,204,144,0.15);color:#49cc90}
+.crud-badge.read{background:rgba(97,175,254,0.15);color:#61affe}
+.crud-badge.update{background:rgba(252,161,48,0.15);color:#fca130}
+.crud-badge.delete{background:rgba(249,62,62,0.15);color:#f93e3e}
+
+/* === COPY BUTTON === */
+.copy-btn{position:absolute;top:52px;right:12px;background:rgba(255,255,255,0.06);border:none;color:var(--text-dim);padding:5px 12px;border-radius:8px;font-size:0.75rem;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all 0.3s;z-index:2}
+.copy-btn:hover{background:rgba(255,255,255,0.12);color:var(--text)}
+
+/* === FOOTER === */
+footer{text-align:center;padding:50px 20px;color:var(--text-dim);font-size:0.82rem;border-top:1px solid rgba(255,255,255,0.04);margin-top:60px}
+footer a{color:var(--accent);text-decoration:none}
+footer .heart{color:var(--accent2);animation:pulse 2s ease-in-out infinite;display:inline-block}
+
+/* === PROFESSOR BANNER === */
+.prof-banner{
+  background:linear-gradient(135deg,rgba(55,118,171,0.08),rgba(247,183,49,0.06));
+  border:1px solid rgba(55,118,171,0.12);
+  border-radius:20px;padding:28px 32px;
+  margin-bottom:0;
+  display:flex;align-items:center;gap:24px;
+  position:relative;overflow:hidden;
+  animation:fadeSlideDown 0.8s ease 0.6s both;
+}
+.prof-banner::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--python),var(--accent5),var(--streamlit),var(--accent3));
+}
+.prof-banner::after{
+  content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;
+  background:radial-gradient(circle,rgba(55,118,171,0.06),transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+.prof-avatar{
+  width:72px;height:72px;border-radius:18px;
+  background:linear-gradient(135deg,var(--python),var(--accent6));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;flex-shrink:0;
+  box-shadow:0 8px 25px rgba(55,118,171,0.25);
+  position:relative;
+}
+.prof-avatar::after{
+  content:'';position:absolute;inset:-3px;border-radius:21px;
+  background:linear-gradient(135deg,var(--python),var(--accent6));
+  opacity:0.3;z-index:-1;
+}
+.prof-info{flex:1;min-width:0}
+.prof-label{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:0.68rem;text-transform:uppercase;letter-spacing:2.5px;
+  color:var(--python);font-weight:800;margin-bottom:4px;
+}
+.prof-label .verified{
+  width:16px;height:16px;border-radius:50%;
+  background:var(--python);color:white;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:0.6rem;
+}
+.prof-name{
+  font-size:1.3rem;font-weight:900;
+  background:linear-gradient(135deg,var(--text),var(--accent4));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;line-height:1.3;
+}
+.prof-role{
+  font-size:0.82rem;color:var(--text-dim);margin-top:2px;
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+}
+.prof-role .tag{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 10px;border-radius:50px;font-size:0.7rem;font-weight:700;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);
+}
+.prof-links{
+  display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;
+}
+.prof-link{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 14px;border-radius:8px;font-size:0.72rem;font-weight:700;
+  color:var(--text-dim);background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.06);
+  text-decoration:none;transition:all 0.25s;
+}
+.prof-link:hover{
+  background:rgba(55,118,171,0.1);border-color:rgba(55,118,171,0.25);
+  color:var(--text);transform:translateY(-1px);
+}
+.prof-link svg{width:14px;height:14px;fill:currentColor}
+.programa-ai-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 14px;border-radius:50px;
+  background:linear-gradient(135deg,rgba(108,99,255,0.12),rgba(167,139,250,0.08));
+  border:1px solid rgba(108,99,255,0.2);
+  font-size:0.72rem;font-weight:800;color:var(--accent6);
+  margin-top:8px;
+}
+.programa-ai-badge .ai-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent6);animation:pulse 2s ease-in-out infinite;
+}
+
+/* === LAYER STACK (reused for flow) === */
+.layer-stack{display:flex;flex-direction:column;gap:4px;margin:20px 0;max-width:500px;margin-left:auto;margin-right:auto}
+.layer-item{padding:16px 24px;border-radius:12px;text-align:center;font-weight:800;font-size:0.9rem;position:relative;transition:all 0.3s;cursor:default}
+.layer-item:hover{transform:scale(1.03)}
+.layer-item .layer-sub{font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.7);margin-top:2px}
+.layer-python{background:linear-gradient(135deg,rgba(55,118,171,0.15),rgba(55,118,171,0.05));border:1px solid rgba(55,118,171,0.2);color:var(--python)}
+.layer-tinydb{background:linear-gradient(135deg,rgba(247,183,49,0.15),rgba(247,183,49,0.05));border:1px solid rgba(247,183,49,0.2);color:var(--accent5)}
+.layer-file{background:linear-gradient(135deg,rgba(78,205,196,0.15),rgba(78,205,196,0.05));border:1px solid rgba(78,205,196,0.2);color:var(--accent3)}
+.layer-streamlit{background:linear-gradient(135deg,rgba(255,75,75,0.15),rgba(255,75,75,0.05));border:1px solid rgba(255,75,75,0.2);color:var(--streamlit)}
+.layer-arrow{text-align:center;color:var(--text-dim);font-size:0.8rem}
+
+@media(max-width:640px){
+  .prof-banner{flex-direction:column;text-align:center;padding:24px 20px}
+  .prof-info{display:flex;flex-direction:column;align-items:center}
+  .prof-role{justify-content:center}
+  .prof-links{justify-content:center}
+}
+
+/* === RESPONSIVE === */
+@media(max-width:768px){
+  .container{padding:14px}
+  .card{padding:20px}
+  .hero{padding:60px 16px 40px}
+  .hero-icons{font-size:2.5rem}
+  pre{font-size:0.74rem}
+  .flow-box{min-width:180px;padding:12px 16px;font-size:0.82rem}
+  .annotation-grid{grid-template-columns:1fr}
+  .layer-stack{max-width:100%}
+  .endpoint-table{font-size:0.75rem}
+  .endpoint-table th,.endpoint-table td{padding:8px 10px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-orbs"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+<div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- MENU TOGGLE -->
+<button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+
+<!-- SIDEBAR NAV -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<nav class="sidebar-nav" id="sidebarNav">
+  <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+  <div class="sidebar-header">
+    <h3>🐍 Sumário do Curso</h3>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">🏠 Introdução</div>
+    <a class="sidebar-link" onclick="goTo('hero')"><span class="dot" style="background:var(--accent)"></span>Visão Geral</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">💾 Capítulo 1 — TinyDB</div>
+    <a class="sidebar-link" onclick="goTo('tinydb-problema')"><span class="dot" style="background:var(--accent2)"></span>O Problema</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-intro')"><span class="dot" style="background:var(--accent5)"></span>O que é TinyDB?</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-insert')"><span class="dot" style="background:var(--accent3)"></span>Salvando Dados</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-read')"><span class="dot" style="background:var(--accent4)"></span>Lendo Dados</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-search')"><span class="dot" style="background:var(--accent6)"></span>Buscando Dados</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-update')"><span class="dot" style="background:var(--accent7)"></span>Atualizando Dados</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-remove')"><span class="dot" style="background:var(--accent2)"></span>Removendo Dados</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-crud')"><span class="dot" style="background:var(--accent)"></span>Resumo CRUD</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-tables')"><span class="dot" style="background:var(--accent5)"></span>Tabelas</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-demo')"><span class="dot" style="background:var(--accent3)"></span>Demo Interativa</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-desafio')"><span class="dot" style="background:var(--accent4)"></span>Desafio Prático</a>
+    <a class="sidebar-link" onclick="goTo('tinydb-resumo')"><span class="dot" style="background:var(--accent6)"></span>Resumo TinyDB</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">🎨 Capítulo 2 — Streamlit</div>
+    <a class="sidebar-link" onclick="goTo('st-problema')"><span class="dot" style="background:var(--streamlit)"></span>O Problema</a>
+    <a class="sidebar-link" onclick="goTo('st-intro')"><span class="dot" style="background:var(--accent5)"></span>O que é Streamlit?</a>
+    <a class="sidebar-link" onclick="goTo('st-texto')"><span class="dot" style="background:var(--accent3)"></span>Textos na Tela</a>
+    <a class="sidebar-link" onclick="goTo('st-input')"><span class="dot" style="background:var(--accent4)"></span>Campos de Entrada</a>
+    <a class="sidebar-link" onclick="goTo('st-button')"><span class="dot" style="background:var(--accent6)"></span>Botões</a>
+    <a class="sidebar-link" onclick="goTo('st-messages')"><span class="dot" style="background:var(--accent7)"></span>Mensagens</a>
+    <a class="sidebar-link" onclick="goTo('st-table')"><span class="dot" style="background:var(--accent)"></span>Tabelas</a>
+    <a class="sidebar-link" onclick="goTo('st-select')"><span class="dot" style="background:var(--accent2)"></span>Selectbox</a>
+    <a class="sidebar-link" onclick="goTo('st-tabs')"><span class="dot" style="background:var(--accent5)"></span>Abas e Layout</a>
+    <a class="sidebar-link" onclick="goTo('st-resumo-elem')"><span class="dot" style="background:var(--accent3)"></span>Resumo dos Elementos</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">🏪 Projeto Final</div>
+    <a class="sidebar-link" onclick="goTo('projeto-final')"><span class="dot" style="background:var(--accent5)"></span>Sistema de Loja</a>
+    <a class="sidebar-link" onclick="goTo('projeto-config')"><span class="dot" style="background:var(--python)"></span>Configuração</a>
+    <a class="sidebar-link" onclick="goTo('projeto-estoque')"><span class="dot" style="background:var(--accent4)"></span>Aba: Estoque</a>
+    <a class="sidebar-link" onclick="goTo('projeto-cadastro')"><span class="dot" style="background:var(--accent3)"></span>Aba: Cadastrar</a>
+    <a class="sidebar-link" onclick="goTo('projeto-venda')"><span class="dot" style="background:var(--accent5)"></span>Aba: Vender</a>
+    <a class="sidebar-link" onclick="goTo('projeto-vendas')"><span class="dot" style="background:var(--accent6)"></span>Aba: Vendas</a>
+    <a class="sidebar-link" onclick="goTo('projeto-rodar')"><span class="dot" style="background:var(--accent7)"></span>Como Rodar</a>
+    <a class="sidebar-link" onclick="goTo('encerramento')"><span class="dot" style="background:var(--accent)"></span>Encerramento</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ════════════════════════════════════════ -->
+<!-- PROFESSOR BANNER -->
+<!-- ════════════════════════════════════════ -->
+<div class="prof-banner" style="margin-top:60px">
+  <div class="prof-avatar">🐍</div>
+  <div class="prof-info">
+    <div class="prof-label">
+      Professor <span class="verified">✓</span>
+    </div>
+    <div class="prof-name">Kelson Almeida</div>
+    <div class="prof-role">
+      <span class="tag">🐍 Python</span>
+      <span class="tag">💾 TinyDB</span>
+      <span class="tag">🎨 Streamlit</span>
+      <span class="tag">📍 João Pessoa, PB</span>
+    </div>
+    <div class="prof-links">
+      <a href="https://github.com/kelsonvictr" target="_blank" class="prof-link">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+        GitHub
+      </a>
+    </div>
+    <div class="programa-ai-badge">
+      <span class="ai-dot"></span>
+      Programa AI — Cursos didáticos e práticos
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-icons">🐍 💾 🎨</div>
+  <div class="hero-badge">Programa AI — Bootcamp</div>
+  <h1>Programação para<br>Iniciantes</h1>
+  <p class="subtitle">Persistência de Dados com TinyDB e Interface Gráfica com Streamlit — as últimas peças do seu primeiro sistema completo em Python.</p>
+  <div class="hero-stack">
+    <span class="stack-chip python">🐍 Python 3</span>
+    <span class="stack-chip tinydb">💾 TinyDB</span>
+    <span class="stack-chip streamlit">🎨 Streamlit</span>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- INTRO: O QUE VAMOS APRENDER -->
+<!-- ════════════════════════════════════════ -->
+<section class="step-section" id="overview">
+  <div class="step-header">
+    <div class="step-number sn-main">🎯</div>
+    <div>
+      <div class="step-title">O que vamos aprender?</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">As duas últimas peças do quebra-cabeça</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p style="font-size:1.02rem;margin-bottom:20px">Você já sabe programar em Python: variáveis, condicionais, loops, listas, dicionários e funções. Agora vamos resolver <strong style="color:var(--accent5)">dois problemas</strong> que ficaram pendentes:</p>
+    <div class="keyword-map stagger" id="overviewMap">
+      <div class="keyword-chip"><span class="emoji">💾</span><span class="kw-name">TinyDB</span><span class="kw-desc">Salvar dados que persistem</span></div>
+      <div class="keyword-chip"><span class="emoji">📦</span><span class="kw-name">CRUD</span><span class="kw-desc">Criar, Ler, Atualizar, Deletar</span></div>
+      <div class="keyword-chip"><span class="emoji">🎨</span><span class="kw-name">Streamlit</span><span class="kw-desc">Interface gráfica com Python</span></div>
+      <div class="keyword-chip"><span class="emoji">🏪</span><span class="kw-name">Projeto Final</span><span class="kw-desc">Sistema de Loja completo</span></div>
+    </div>
+
+    <div class="analogy" style="margin-top:20px">
+      <div class="analogy-title">Onde estávamos?</div>
+      <p style="color:var(--text-dim)">Seu último projeto foi o <code>sistema_cadastro.py</code> — um sistema com menu <code>while</code>, lista de dicionários e funções. Funcionava perfeitamente... <strong style="color:var(--accent2)">até fechar o terminal</strong>. Todos os dados sumiam! 💨 Agora vamos resolver isso.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ║               CAPÍTULO 1: TINYDB                            ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+
+<div class="chapter-divider" id="cap-tinydb">
+  <span class="chapter-icon">💾</span>
+  <div class="chapter-number">Capítulo 1</div>
+  <h2 class="grad-tinydb">Persistência com TinyDB</h2>
+  <p class="chapter-subtitle">Seus dados agora sobrevivem! Sem SQL, sem complicação.</p>
+</div>
+
+<!-- 1.1 O PROBLEMA -->
+<section class="step-section" id="tinydb-problema">
+  <div class="step-header">
+    <div class="step-number sn-red">1.1</div>
+    <div>
+      <div class="step-title">O Problema</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Por que precisamos persistir dados?</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="concept">
+      <div class="concept-title">🤔 E se fecharmos o programa agora?</div>
+      <p>Todos os cadastros <strong style="color:var(--accent2)">somem!</strong> Tudo que estava na lista de dicionários era guardado na <strong style="color:var(--text)">memória RAM</strong> — e a RAM é apagada quando o programa fecha. Precisamos "guardar" essas informações de forma <strong style="color:var(--accent3)">permanente</strong>.</p>
+    </div>
+
+    <div class="layer-stack stagger" id="problemStack">
+      <div class="layer-item layer-python">🐍 Seu programa Python<div class="layer-sub">lista_alunos = [{"nome": "Ana"}, ...]</div></div>
+      <div class="layer-arrow">↕️ dados na memória RAM</div>
+      <div class="layer-item" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:var(--accent2)">❌ Fecha o terminal<div class="layer-sub">POOF! Tudo sumiu! 💨</div></div>
+    </div>
+
+    <p style="color:var(--text-dim);margin-top:20px;font-size:0.95rem;text-align:center">É aí que entra o <strong style="color:var(--accent5)">TinyDB</strong> — um mini banco de dados que funciona direto no Python, sem precisar aprender outra linguagem!</p>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.2 O QUE É TINYDB -->
+<section class="step-section" id="tinydb-intro">
+  <div class="step-header">
+    <div class="step-number sn-yellow">1.2</div>
+    <div>
+      <div class="step-title">O que é TinyDB?</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Um banco de dados que cabe no bolso</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="concept">
+      <div class="concept-title">📦 TinyDB = Tiny Database</div>
+      <p><strong style="color:var(--text)">Banco de dados pequeno.</strong> É uma biblioteca Python que salva seus dicionários automaticamente num arquivo. <strong style="color:var(--accent3)">Sem SQL, sem configuração, sem complicação!</strong> Funciona com o que você já conhece: dicionários e listas.</p>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-title">Analogia: Do caderno à gaveta</div>
+      <p style="color:var(--text-dim)">Se a lista de dicionários era um <strong style="color:var(--text)">caderno que você apagava ao fechar</strong>, o TinyDB é um <strong style="color:var(--accent3)">caderno que fica salvo na gaveta</strong>. Quando você abre de novo, tudo continua lá! 📒</p>
+    </div>
+
+    <div class="layer-stack stagger" id="tinydbStack">
+      <div class="layer-item layer-python">🐍 Seu programa Python<div class="layer-sub">db.insert({"nome": "Ana", "idade": 22})</div></div>
+      <div class="layer-arrow">↕️ TinyDB cuida de tudo</div>
+      <div class="layer-item layer-tinydb">💾 TinyDB<div class="layer-sub">Salva automaticamente no arquivo</div></div>
+      <div class="layer-arrow">↕️ arquivo JSON no disco</div>
+      <div class="layer-item layer-file">📄 alunos.json<div class="layer-sub">Dados persistem mesmo após fechar! ✅</div></div>
+    </div>
+
+    <h4 style="margin:24px 0 12px;color:var(--accent3)">📦 Instalação</h4>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">Terminal</span><span class="lang-badge terminal">terminal</span></div>
+      </div>
+      <pre><span class="fn">pip</span> <span class="st">install</span> tinydb</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">💡</span>
+      <div class="tip-content">O TinyDB é instalado com um único comando. <strong>Não precisa configurar</strong> nada! Sem servidor, sem senha, sem configuração de porta. É só importar e usar.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.3 SALVANDO DADOS -->
+<section class="step-section" id="tinydb-insert">
+  <div class="step-header">
+    <div class="step-number sn-green">1.3</div>
+    <div>
+      <div class="step-title">Primeiros Passos — Salvando dados</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Seu primeiro insert com TinyDB</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">primeiro_tinydb.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7</div>
+      <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+
+db.<span class="fn">insert</span>({<span class="st">"nome"</span>: <span class="st">"Ana"</span>, <span class="st">"idade"</span>: <span class="num">22</span>, <span class="st">"curso"</span>: <span class="st">"Python"</span>})
+db.<span class="fn">insert</span>({<span class="st">"nome"</span>: <span class="st">"João"</span>, <span class="st">"idade"</span>: <span class="num">25</span>, <span class="st">"curso"</span>: <span class="st">"Java"</span>})
+
+<span class="fn">print</span>(<span class="st">"✅ Dados salvos com sucesso!"</span>)</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">🤯</span>
+      <div class="tip-content"><strong>Só isso!</strong> Sem <code>open()</code>, sem <code>json.dump()</code>, sem <code>with</code>. O TinyDB cuida de tudo. Cada <code>db.insert()</code> recebe um dicionário — exatamente o que você já sabe usar!</div>
+    </div>
+
+    <div class="toggler">
+      <div class="toggler-header" onclick="toggleSection(this)">
+        <span>🔍 O que aconteceu no arquivo? (Clique para ver)</span>
+        <span class="toggler-arrow">▼</span>
+      </div>
+      <div class="toggler-body">
+        <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:12px">O TinyDB criou automaticamente o arquivo <code>alunos.json</code> na mesma pasta do seu script. Se você abri-lo, verá algo assim:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <div style="display:flex;align-items:center;gap:8px"><span class="filename">alunos.json</span><span class="lang-badge json">JSON</span></div>
+          </div>
+          <pre>
+{
+  <span class="json-key">"_default"</span>: {
+    <span class="json-key">"1"</span>: {<span class="json-key">"nome"</span>: <span class="json-val">"Ana"</span>, <span class="json-key">"idade"</span>: <span class="json-num">22</span>, <span class="json-key">"curso"</span>: <span class="json-val">"Python"</span>},
+    <span class="json-key">"2"</span>: {<span class="json-key">"nome"</span>: <span class="json-val">"João"</span>, <span class="json-key">"idade"</span>: <span class="json-num">25</span>, <span class="json-key">"curso"</span>: <span class="json-val">"Java"</span>}
+  }
+}</pre>
+        </div>
+        <div class="tip">
+          <span class="tip-icon">📁</span>
+          <div class="tip-content">O TinyDB usa um arquivo JSON por baixo dos panos. Cada registro recebe um ID automático ("1", "2", ...). A chave <code>"_default"</code> é a tabela padrão.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.4 LENDO DADOS -->
+<section class="step-section" id="tinydb-read">
+  <div class="step-header">
+    <div class="step-number sn-blue">1.4</div>
+    <div>
+      <div class="step-title">Lendo os dados</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Recuperando informações com .all()</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">ler_tinydb.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div>
+      <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+dados = db.<span class="fn">all</span>()
+
+<span class="fn">print</span>(<span class="st">"📂 Dados carregados:"</span>)
+<span class="kw">for</span> aluno <span class="kw">in</span> dados:
+    <span class="fn">print</span>(aluno)</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">📂</span>
+      <div class="tip-content">O <code>.all()</code> traz <strong>todos os registros</strong> como uma lista de dicionários — exatamente o formato que você já conhece! Abra o arquivo <code>alunos.json</code> no editor e veja: seus dados estão lá, persistidos.</div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-title">🧪 Teste isso!</div>
+      <p>Execute <code>primeiro_tinydb.py</code>, depois <strong style="color:var(--text)">feche o terminal</strong>, abra de novo e execute <code>ler_tinydb.py</code>. Os dados continuam lá! 🎉 Isso é <strong style="color:var(--accent3)">persistência</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.5 BUSCANDO DADOS -->
+<section class="step-section" id="tinydb-search">
+  <div class="step-header">
+    <div class="step-number sn-purple">1.5</div>
+    <div>
+      <div class="step-title">Buscando dados</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Filtrando com where()</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">buscar_tinydb.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6</div>
+      <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB, where
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+
+resultado = db.<span class="fn">search</span>(<span class="fn">where</span>(<span class="st">"nome"</span>) == <span class="st">"Ana"</span>)
+<span class="fn">print</span>(resultado)</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-title">🔍 Entendendo o where()</div>
+      <p>O <code>where</code> funciona como um <strong style="color:var(--text)">filtro</strong>: "me traga todos os registros <strong style="color:var(--accent5)">onde</strong> o nome é Ana". É como perguntar ao banco: <em>"Quem aqui se chama Ana?"</em></p>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">💡</span>
+      <div class="tip-content">O <code>search()</code> sempre retorna uma <strong>lista</strong>, mesmo que encontre apenas um resultado. Se não encontrar nada, retorna uma lista vazia <code>[]</code>.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.6 ATUALIZANDO DADOS -->
+<section class="step-section" id="tinydb-update">
+  <div class="step-header">
+    <div class="step-number" style="background:var(--accent7)">1.6</div>
+    <div>
+      <div class="step-title">Atualizando dados</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Modificando registros existentes</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">atualizar_tinydb.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6</div>
+      <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB, where
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+
+db.<span class="fn">update</span>({<span class="st">"idade"</span>: <span class="num">23</span>}, <span class="fn">where</span>(<span class="st">"nome"</span>) == <span class="st">"Ana"</span>)
+<span class="fn">print</span>(<span class="st">"✅ Idade atualizada!"</span>)</pre>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-title">Traduzindo para o português</div>
+      <p style="color:var(--text-dim)">"No registro <strong style="color:var(--text)">onde</strong> o nome é Ana, <strong style="color:var(--accent3)">mude</strong> a idade para 23." — É exatamente assim que o <code>update</code> funciona! Primeiro o <strong>que</strong> mudar, depois <strong>onde</strong> mudar.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.7 REMOVENDO DADOS -->
+<section class="step-section" id="tinydb-remove">
+  <div class="step-header">
+    <div class="step-number sn-red">1.7</div>
+    <div>
+      <div class="step-title">Removendo dados</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Deletando registros do banco</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">remover_tinydb.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6</div>
+      <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB, where
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+
+db.<span class="fn">remove</span>(<span class="fn">where</span>(<span class="st">"nome"</span>) == <span class="st">"João"</span>)
+<span class="fn">print</span>(<span class="st">"✅ Aluno removido!"</span>)</pre>
+    </div>
+
+    <div class="warning">
+      <span class="warning-icon">⚠️</span>
+      <div style="color:var(--text-dim);font-size:0.9rem"><strong style="color:var(--accent5)">Cuidado!</strong> O <code>remove()</code> apaga <strong>permanentemente</strong> do arquivo. Diferente da lista, onde você podia "resetar" reiniciando o programa, aqui o dado realmente sumiu do disco!</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.8 RESUMO CRUD -->
+<section class="step-section" id="tinydb-crud">
+  <div class="step-header">
+    <div class="step-number sn-main">1.8</div>
+    <div>
+      <div class="step-title">Resumo CRUD</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">As quatro operações fundamentais</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="concept">
+      <div class="concept-title">🧠 O que é CRUD?</div>
+      <p>CRUD é a sigla para as 4 operações que todo banco de dados faz: <strong style="color:#49cc90">C</strong>reate (criar), <strong style="color:#61affe">R</strong>ead (ler), <strong style="color:#fca130">U</strong>pdate (atualizar) e <strong style="color:#f93e3e">D</strong>elete (deletar). Com o TinyDB, cada operação é uma única linha de código!</p>
+    </div>
+
+    <div class="db-table">
+      <div class="db-table-header">🐍 CRUD com TinyDB</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Operação</th>
+            <th>Código TinyDB</th>
+            <th>O que faz</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="crud-badge create">CREATE</span></td>
+            <td><code style="color:var(--accent3)">db.insert({"nome": "Ana"})</code></td>
+            <td style="color:var(--text-dim)">Adiciona um novo registro</td>
+          </tr>
+          <tr>
+            <td><span class="crud-badge read">READ</span></td>
+            <td><code style="color:var(--accent4)">db.all()</code> ou <code style="color:var(--accent4)">db.search(where(...))</code></td>
+            <td style="color:var(--text-dim)">Lista ou busca registros</td>
+          </tr>
+          <tr>
+            <td><span class="crud-badge update">UPDATE</span></td>
+            <td><code style="color:var(--accent5)">db.update({...}, where(...))</code></td>
+            <td style="color:var(--text-dim)">Altera um registro existente</td>
+          </tr>
+          <tr>
+            <td><span class="crud-badge delete">DELETE</span></td>
+            <td><code style="color:var(--accent2)">db.remove(where(...))</code></td>
+            <td style="color:var(--text-dim)">Remove um registro</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="text-align:center;color:var(--accent5);font-family:'Caveat',cursive;font-size:1.4rem;margin-top:20px">"Quatro operações. Quatro linhas. Sem SQL. Tudo Python." 🐍</p>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.9 TABELAS -->
+<section class="step-section" id="tinydb-tables">
+  <div class="step-header">
+    <div class="step-number sn-yellow">1.9</div>
+    <div>
+      <div class="step-title">Tabelas — Organizando com tables</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Gavetas dentro do mesmo armário</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">tabelas_tinydb.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div>
+      <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB
+
+db = <span class="fn">TinyDB</span>(<span class="st">"escola.json"</span>)
+alunos = db.<span class="fn">table</span>(<span class="st">"alunos"</span>)
+professores = db.<span class="fn">table</span>(<span class="st">"professores"</span>)
+
+alunos.<span class="fn">insert</span>({<span class="st">"nome"</span>: <span class="st">"Ana"</span>, <span class="st">"idade"</span>: <span class="num">22</span>})
+professores.<span class="fn">insert</span>({<span class="st">"nome"</span>: <span class="st">"Kelson"</span>, <span class="st">"disciplina"</span>: <span class="st">"Python"</span>})</pre>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-title">Analogia: Gavetas de um armário</div>
+      <p style="color:var(--text-dim)">É como ter várias <strong style="color:var(--text)">gavetas dentro do mesmo armário</strong>! O arquivo <code>escola.json</code> é o armário. Cada <code>.table()</code> é uma gaveta separada. A gaveta "alunos" não se mistura com a gaveta "professores". 🗄️</p>
+    </div>
+
+    <div class="toggler">
+      <div class="toggler-header" onclick="toggleSection(this)">
+        <span>🔍 Como fica o arquivo escola.json?</span>
+        <span class="toggler-arrow">▼</span>
+      </div>
+      <div class="toggler-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <div style="display:flex;align-items:center;gap:8px"><span class="filename">escola.json</span><span class="lang-badge json">JSON</span></div>
+          </div>
+          <pre>
+{
+  <span class="json-key">"alunos"</span>: {
+    <span class="json-key">"1"</span>: {<span class="json-key">"nome"</span>: <span class="json-val">"Ana"</span>, <span class="json-key">"idade"</span>: <span class="json-num">22</span>}
+  },
+  <span class="json-key">"professores"</span>: {
+    <span class="json-key">"1"</span>: {<span class="json-key">"nome"</span>: <span class="json-val">"Kelson"</span>, <span class="json-key">"disciplina"</span>: <span class="json-val">"Python"</span>}
+  }
+}</pre>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-top:8px">Cada tabela fica em sua própria seção dentro do arquivo, tudo organizado!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.10 DEMO INTERATIVA -->
+<section class="step-section" id="tinydb-demo">
+  <div class="step-header">
+    <div class="step-number sn-green">1.10</div>
+    <div>
+      <div class="step-title">Demo Interativa</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Veja o TinyDB em ação!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:8px;color:var(--accent5)">🐍 Simulador TinyDB</h3>
+    <p style="color:var(--text-dim);margin-bottom:16px;font-size:0.9rem">Clique nos botões para simular cada operação do CRUD:</p>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn-demo btn-green btn-small" onclick="demoTinyDB('insert')">➕ INSERT</button>
+      <button class="btn-demo btn-python btn-small" onclick="demoTinyDB('all')">📂 ALL</button>
+      <button class="btn-demo btn-yellow btn-small" onclick="demoTinyDB('search')">🔍 SEARCH</button>
+      <button class="btn-demo btn-teal btn-small" onclick="demoTinyDB('update')">✏️ UPDATE</button>
+      <button class="btn-demo btn-red btn-small" onclick="demoTinyDB('remove')">🗑️ REMOVE</button>
+    </div>
+
+    <div class="demo-terminal">
+      <div class="term-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <span>Python 3 — TinyDB Demo</span>
+      </div>
+      <div class="demo-body" id="tinydbDemoBody">
+        <div class="demo-line show"><span class="dim">Clique num botão acima para ver a operação em ação... 🐍</span></div>
+      </div>
+    </div>
+
+    <!-- DB Visualization -->
+    <h4 style="margin:24px 0 12px;color:var(--accent4)">💾 Estado do banco de dados:</h4>
+    <div class="db-table">
+      <div class="db-table-header">📄 alunos.json — tabela _default</div>
+      <table>
+        <thead><tr><th>ID</th><th>nome</th><th>idade</th><th>curso</th></tr></thead>
+        <tbody id="tinydbTable">
+          <tr style="color:var(--text-dim);font-style:italic"><td colspan="4" style="text-align:center;padding:20px">Banco vazio — clique INSERT para adicionar dados!</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:8px">
+      <button class="btn-demo btn-small" style="background:var(--surface3);border:1px solid rgba(255,255,255,0.1)" onclick="resetTinydbDemo()">🔄 Resetar Demo</button>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 1.11 DESAFIO PRÁTICO -->
+<section class="step-section" id="tinydb-desafio">
+  <div class="step-header">
+    <div class="step-number sn-blue">1.11</div>
+    <div>
+      <div class="step-title">Desafio Prático</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">sistema_cadastro_tinydb.py</div>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:rgba(247,183,49,0.2)">
+    <h3 style="margin-bottom:16px;color:var(--accent5)">🎯 Desafio: Migre para o TinyDB!</h3>
+    <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:20px">Lembra do <code>sistema_cadastro.py</code> que você fez com menu <code>while</code> e lista de dicionários? Agora é hora de <strong style="color:var(--accent3)">dar memória</strong> para ele!</p>
+
+    <div style="display:grid;gap:10px;color:var(--text-dim);font-size:0.92rem;margin-bottom:20px">
+      <div style="display:flex;gap:10px"><span style="color:var(--accent5)">1⃣</span> Use o sistema de cadastro de alunos da aula anterior</div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent5)">2⃣</span> Troque a <code>lista</code> por um <code>TinyDB</code></div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent5)">3⃣</span> Use <code>db.insert()</code> para cadastrar, <code>db.all()</code> para listar, <code>db.search()</code> para buscar</div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent5)">4⃣</span> Teste <strong style="color:var(--text)">fechando e abrindo</strong> o programa — os dados continuam lá!</div>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">💡</span>
+      <div class="tip-content">Você <strong>não precisa mais se preocupar com salvar manualmente</strong>. O TinyDB salva sozinho a cada <code>insert()</code>!</div>
+    </div>
+
+    <div class="toggler" style="margin-top:16px">
+      <div class="toggler-header" onclick="toggleSection(this)">
+        <span>👀 Ver solução completa</span>
+        <span class="toggler-arrow">▼</span>
+      </div>
+      <div class="toggler-body">
+        <div class="code-block with-lines" style="position:relative">
+          <div class="code-header">
+            <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <div style="display:flex;align-items:center;gap:8px"><span class="filename">sistema_cadastro_tinydb.py</span><span class="lang-badge python">Python</span></div>
+          </div>
+          <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46</div>
+          <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB, where
+
+db = <span class="fn">TinyDB</span>(<span class="st">"alunos.json"</span>)
+
+<span class="kw">def</span> <span class="fn">mostrar_menu</span>():
+    <span class="fn">print</span>(<span class="st">"\n1 - Adicionar aluno"</span>)
+    <span class="fn">print</span>(<span class="st">"2 - Listar alunos"</span>)
+    <span class="fn">print</span>(<span class="st">"3 - Buscar por nome"</span>)
+    <span class="fn">print</span>(<span class="st">"0 - Sair"</span>)
+
+<span class="kw">def</span> <span class="fn">adicionar_aluno</span>():
+    nome = <span class="fn">input</span>(<span class="st">"Nome: "</span>)
+    idade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Idade: "</span>))
+    curso = <span class="fn">input</span>(<span class="st">"Curso: "</span>)
+    db.<span class="fn">insert</span>({<span class="st">"nome"</span>: nome, <span class="st">"idade"</span>: idade, <span class="st">"curso"</span>: curso})
+    <span class="fn">print</span>(<span class="st">"✅ Aluno cadastrado!"</span>)
+
+<span class="kw">def</span> <span class="fn">listar_alunos</span>():
+    alunos = db.<span class="fn">all</span>()
+    <span class="kw">if</span> <span class="fn">len</span>(alunos) == <span class="num">0</span>:
+        <span class="fn">print</span>(<span class="st">"Nenhum aluno cadastrado."</span>)
+        <span class="kw">return</span>
+    <span class="kw">for</span> aluno <span class="kw">in</span> alunos:
+        <span class="fn">print</span>(<span class="st">f"- </span>{aluno[<span class="st">'nome'</span>]}<span class="st">, </span>{aluno[<span class="st">'idade'</span>]}<span class="st"> anos, </span>{aluno[<span class="st">'curso'</span>]}<span class="st">"</span>)
+    <span class="fn">print</span>(<span class="st">f"Total: </span>{<span class="fn">len</span>(alunos)}<span class="st"> aluno(s)"</span>)
+
+<span class="kw">def</span> <span class="fn">buscar_por_nome</span>():
+    nome = <span class="fn">input</span>(<span class="st">"Nome para buscar: "</span>)
+    resultado = db.<span class="fn">search</span>(<span class="fn">where</span>(<span class="st">"nome"</span>) == nome)
+    <span class="kw">if</span> <span class="fn">len</span>(resultado) == <span class="num">0</span>:
+        <span class="fn">print</span>(<span class="st">"Nenhum aluno encontrado."</span>)
+    <span class="kw">else</span>:
+        <span class="kw">for</span> aluno <span class="kw">in</span> resultado:
+            <span class="fn">print</span>(<span class="st">f"- </span>{aluno[<span class="st">'nome'</span>]}<span class="st">, </span>{aluno[<span class="st">'idade'</span>]}<span class="st"> anos, </span>{aluno[<span class="st">'curso'</span>]}<span class="st">"</span>)
+
+<span class="kw">while</span> <span class="bool">True</span>:
+    <span class="fn">mostrar_menu</span>()
+    op = <span class="fn">input</span>(<span class="st">"Escolha: "</span>)
+
+    <span class="kw">if</span> op == <span class="st">"1"</span>:
+        <span class="fn">adicionar_aluno</span>()
+    <span class="kw">elif</span> op == <span class="st">"2"</span>:
+        <span class="fn">listar_alunos</span>()
+    <span class="kw">elif</span> op == <span class="st">"3"</span>:
+        <span class="fn">buscar_por_nome</span>()
+    <span class="kw">elif</span> op == <span class="st">"0"</span>:
+        <span class="fn">print</span>(<span class="st">f"Total de alunos no banco: </span>{<span class="fn">len</span>(db.<span class="fn">all</span>())}<span class="st">"</span>)
+        <span class="fn">print</span>(<span class="st">"Até logo! 👋"</span>)
+        <span class="kw">break</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- RESUMO TINYDB -->
+<section class="step-section" id="tinydb-resumo">
+  <div class="step-header">
+    <div class="step-number sn-yellow">✅</div>
+    <div>
+      <div class="step-title">Resumo — TinyDB</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Tudo que aprendemos neste capítulo</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:grid;gap:10px;color:var(--text-dim);font-size:0.95rem">
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">TinyDB</strong> — banco de dados simples, sem SQL</div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">insert, all, search, update, remove</strong> — o CRUD completo</div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">Persistência real</strong> — fecha o programa, os dados ficam</div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">Tabelas</strong> — organizar dados em "gavetas"</div>
+    </div>
+    <p style="text-align:center;color:var(--accent6);font-family:'Caveat',cursive;font-size:1.5rem;margin-top:24px">"Agora seus programas têm memória! Os dados sobrevivem mesmo depois de fechar o terminal." 🧠</p>
+  </div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ║            CAPÍTULO 2: STREAMLIT                             ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+
+<div class="chapter-divider" id="cap-streamlit">
+  <span class="chapter-icon">🎨</span>
+  <div class="chapter-number">Capítulo 2</div>
+  <h2 class="grad-streamlit">Interface Gráfica com Streamlit</h2>
+  <p class="chapter-subtitle">Seu Python ganha cores, botões e interface no navegador!</p>
+</div>
+
+<!-- 2.1 O PROBLEMA -->
+<section class="step-section" id="st-problema">
+  <div class="step-header">
+    <div class="step-number" style="background:var(--streamlit)">2.1</div>
+    <div>
+      <div class="step-title">O Problema</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Do terminal preto à interface bonita</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="concept">
+      <div class="concept-title">🤔 E se tivesse botões?</div>
+      <p>Nosso sistema funciona, mas é no <strong style="color:var(--text)">terminal preto</strong>. E se tivesse <strong style="color:var(--accent3)">botões, caixas de texto, uma interface bonita</strong> — tudo acessível pelo navegador? Sem precisar aprender HTML, CSS ou JavaScript?</p>
+    </div>
+
+    <div class="layer-stack stagger" id="stProblemStack">
+      <div class="layer-item" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:var(--text-dim)">⬛ Terminal (input/print)<div class="layer-sub">Funciona, mas é feio e limitado</div></div>
+      <div class="layer-arrow">↓ transformar em ↓</div>
+      <div class="layer-item layer-streamlit">🎨 Interface Web (Streamlit)<div class="layer-sub">Botões, tabelas, gráficos — tudo no navegador!</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 2.2 O QUE É STREAMLIT -->
+<section class="step-section" id="st-intro">
+  <div class="step-header">
+    <div class="step-number sn-yellow">2.2</div>
+    <div>
+      <div class="step-title">O que é Streamlit?</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Python vira página web magicamente</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="analogy">
+      <div class="analogy-title">Analogia: Tradutor mágico</div>
+      <p style="color:var(--text-dim)">Streamlit é como um <strong style="color:var(--text)">tradutor mágico</strong>: você escreve Python e ele transforma em uma página web bonita. <strong style="color:var(--accent3)">Sem HTML, sem CSS, sem JavaScript — 100% Python!</strong> 🧙‍♂️</p>
+    </div>
+
+    <h4 style="margin:20px 0 12px;color:var(--accent3)">📦 Instalação e execução</h4>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">Terminal</span><span class="lang-badge terminal">terminal</span></div>
+      </div>
+      <pre>
+<span class="fn">pip</span> <span class="st">install</span> streamlit
+
+<span class="cm"># Para rodar seu app:</span>
+<span class="fn">streamlit</span> run app.py</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">🚀</span>
+      <div class="tip-content">Ao rodar <code>streamlit run app.py</code>, o <strong>navegador abre automaticamente</strong> com seu app! É assim que vamos ver nossos programas com interface gráfica. Toda vez que você salvar o arquivo, a página atualiza sozinha.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 2.3 TEXTOS NA TELA -->
+<section class="step-section" id="st-texto">
+  <div class="step-header">
+    <div class="step-number sn-green">2.3</div>
+    <div>
+      <div class="step-title">Textos na tela</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">st.title() e st.write()</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_texto.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4</div>
+      <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+st.<span class="fn">title</span>(<span class="st">"🏪 Meu Primeiro App!"</span>)
+st.<span class="fn">write</span>(<span class="st">"Olá, mundo! Agora com interface gráfica!"</span>)</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">📝</span>
+      <div class="tip-content"><code>st.title()</code> = título grande e bonito. <code>st.write()</code> = texto normal na tela. <strong>Salve o arquivo e veja no navegador!</strong> É como o <code>print()</code>, mas bonito.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 2.4 CAMPOS DE ENTRADA -->
+<section class="step-section" id="st-input">
+  <div class="step-header">
+    <div class="step-number sn-blue">2.4</div>
+    <div>
+      <div class="step-title">Campos de entrada</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">st.text_input() e st.number_input()</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_input.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7</div>
+      <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+st.<span class="fn">title</span>(<span class="st">"Cadastro"</span>)
+
+nome = st.<span class="fn">text_input</span>(<span class="st">"Qual seu nome?"</span>)
+idade = st.<span class="fn">number_input</span>(<span class="st">"Sua idade:"</span>, min_value=<span class="num">0</span>)
+
+st.<span class="fn">write</span>(<span class="st">f"Olá </span>{nome}<span class="st">, você tem </span>{<span class="fn">int</span>(idade)}<span class="st"> anos!"</span>)</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-title">🔗 Conexão com o que você já sabe</div>
+      <p>Lembra do <code>input()</code> do terminal? O <code>st.text_input()</code> é a <strong style="color:var(--text)">mesma coisa</strong>, mas aparece como uma <strong style="color:var(--accent3)">caixinha bonita no navegador</strong>! E o <code>st.number_input()</code> já cuida da conversão para número — sem precisar de <code>int()</code> ao redor.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 2.5 BOTÕES -->
+<section class="step-section" id="st-button">
+  <div class="step-header">
+    <div class="step-number sn-purple">2.5</div>
+    <div>
+      <div class="step-title">Botões</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">st.button() — ação com um clique</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_botao.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6</div>
+      <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+st.<span class="fn">title</span>(<span class="st">"Botão Mágico"</span>)
+
+<span class="kw">if</span> st.<span class="fn">button</span>(<span class="st">"Clique aqui!"</span>):
+    st.<span class="fn">write</span>(<span class="st">"Você clicou! 🎉"</span>)</pre>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-title">É o if que você já conhece!</div>
+      <p style="color:var(--text-dim)">É como o <code>if</code> que você já conhece! Se o botão for clicado (<code>True</code>), executa o código dentro. Se não for clicado (<code>False</code>), pula. <strong style="color:var(--text)">Simples assim!</strong></p>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 2.6 MENSAGENS -->
+<section class="step-section" id="st-messages">
+  <div class="step-header">
+    <div class="step-number" style="background:var(--accent7)">2.6</div>
+    <div>
+      <div class="step-title">Mensagens coloridas</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">success, error, info, warning</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_mensagens.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6</div>
+      <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+st.<span class="fn">success</span>(<span class="st">"✅ Deu certo!"</span>)
+st.<span class="fn">error</span>(<span class="st">"❌ Algo deu errado!"</span>)
+st.<span class="fn">info</span>(<span class="st">"ℹ️ Apenas uma informação."</span>)
+st.<span class="fn">warning</span>(<span class="st">"⚠️ Cuidado!"</span>)</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">🎨</span>
+      <div class="tip-content">Cada tipo de mensagem tem uma <strong>cor diferente</strong>: verde para sucesso, vermelho para erro, azul para info, amarelo para aviso. É como um <code>print()</code> com superpoderes!</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 2.7 TABELAS -->
+<section class="step-section" id="st-table">
+  <div class="step-header">
+    <div class="step-number sn-main">2.7</div>
+    <div>
+      <div class="step-title">Tabelas</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">st.table() — dados organizados</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_tabela.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div>
+      <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+dados = [
+    {<span class="st">"nome"</span>: <span class="st">"Ana"</span>, <span class="st">"idade"</span>: <span class="num">22</span>},
+    {<span class="st">"nome"</span>: <span class="st">"João"</span>, <span class="st">"idade"</span>: <span class="num">25</span>}
+]
+
+st.<span class="fn">table</span>(dados)</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">📊</span>
+      <div class="tip-content">Lembra do <code>for</code> que a gente usava para imprimir a lista? O <code>st.table()</code> faz isso <strong>automaticamente e formatado</strong>! Basta passar a lista de dicionários e ele monta a tabela bonita.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 2.8 SELECTBOX -->
+<section class="step-section" id="st-select">
+  <div class="step-header">
+    <div class="step-number sn-red">2.8</div>
+    <div>
+      <div class="step-title">Selectbox (dropdown)</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Menu de opções clicável</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_select.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5</div>
+      <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+opcao = st.<span class="fn">selectbox</span>(<span class="st">"Escolha uma fruta:"</span>, [<span class="st">"Maçã"</span>, <span class="st">"Banana"</span>, <span class="st">"Uva"</span>])
+st.<span class="fn">write</span>(<span class="st">f"Você escolheu: </span>{opcao}<span class="st">"</span>)</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">💡</span>
+      <div class="tip-content">O <code>selectbox()</code> é como aquele menu numérico que você fazia com <code>if/elif</code>, mas em formato visual! O usuário clica e escolhe — sem digitar números.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 2.9 ABAS E LAYOUT -->
+<section class="step-section" id="st-tabs">
+  <div class="step-header">
+    <div class="step-number sn-yellow">2.9</div>
+    <div>
+      <div class="step-title">Abas e Layout</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">st.tabs(), st.columns() e st.metric()</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4 style="margin-bottom:12px;color:var(--accent5)">📑 Abas com st.tabs()</h4>
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_abas.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div>
+      <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+aba1, aba2 = st.<span class="fn">tabs</span>([<span class="st">"📦 Produtos"</span>, <span class="st">"📊 Vendas"</span>])
+
+<span class="kw">with</span> aba1:
+    st.<span class="fn">write</span>(<span class="st">"Conteúdo da aba Produtos"</span>)
+
+<span class="kw">with</span> aba2:
+    st.<span class="fn">write</span>(<span class="st">"Conteúdo da aba Vendas"</span>)</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-title">🗂️ Organização em abas</div>
+      <p>As abas organizam seu app em <strong style="color:var(--text)">seções clicáveis</strong>, como as abas de um navegador. Cada <code>with</code> define o conteúdo de uma aba. É perfeito para sistemas com várias funcionalidades!</p>
+    </div>
+
+    <h4 style="margin:24px 0 12px;color:var(--accent3)">📐 Colunas e métricas</h4>
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app_layout.py</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5</div>
+      <pre>
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+col1, col2 = st.<span class="fn">columns</span>(<span class="num">2</span>)
+col1.<span class="fn">metric</span>(<span class="st">"Total de vendas"</span>, <span class="num">42</span>)
+col2.<span class="fn">metric</span>(<span class="st">"Faturamento"</span>, <span class="st">"R$ 1.250,00"</span>)</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">📊</span>
+      <div class="tip-content"><code>st.columns(2)</code> divide a tela em 2 colunas lado a lado. <code>st.metric()</code> mostra um número em destaque — perfeito para dashboards!</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- 2.10 RESUMO DOS ELEMENTOS -->
+<section class="step-section" id="st-resumo-elem">
+  <div class="step-header">
+    <div class="step-number sn-green">2.10</div>
+    <div>
+      <div class="step-title">Resumo dos Elementos</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">De/Para: Terminal → Streamlit</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p style="color:var(--text-dim);font-size:0.95rem;margin-bottom:16px">Cada elemento do Streamlit é a <strong style="color:var(--accent5)">versão visual</strong> de algo que você já fazia no terminal:</p>
+
+    <div class="db-table">
+      <div class="db-table-header">🔄 Terminal → Streamlit</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Streamlit</th>
+            <th>O que faz</th>
+            <th>Parece com...</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code style="color:var(--accent3)">st.title()</code></td>
+            <td style="color:var(--text-dim)">Título grande</td>
+            <td style="color:var(--text-dim)"><code>print()</code> com destaque</td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent3)">st.write()</code></td>
+            <td style="color:var(--text-dim)">Texto normal</td>
+            <td style="color:var(--text-dim)"><code>print()</code></td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent3)">st.text_input()</code></td>
+            <td style="color:var(--text-dim)">Campo de texto</td>
+            <td style="color:var(--text-dim)"><code>input()</code></td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent3)">st.number_input()</code></td>
+            <td style="color:var(--text-dim)">Campo numérico</td>
+            <td style="color:var(--text-dim)"><code>int(input())</code></td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent3)">st.button()</code></td>
+            <td style="color:var(--text-dim)">Botão clicável</td>
+            <td style="color:var(--text-dim)"><code>if/else</code></td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent3)">st.success/error</code></td>
+            <td style="color:var(--text-dim)">Mensagens coloridas</td>
+            <td style="color:var(--text-dim)"><code>print()</code> com cor</td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent3)">st.table()</code></td>
+            <td style="color:var(--text-dim)">Tabela formatada</td>
+            <td style="color:var(--text-dim)"><code>for</code> + <code>print</code></td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent3)">st.selectbox()</code></td>
+            <td style="color:var(--text-dim)">Menu dropdown</td>
+            <td style="color:var(--text-dim)">Menu com <code>if/elif</code></td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent3)">st.tabs()</code></td>
+            <td style="color:var(--text-dim)">Abas de navegação</td>
+            <td style="color:var(--text-dim)">Seções do programa</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="analogy" style="margin-top:16px">
+      <div class="analogy-title">Tudo que você já sabe — com roupa nova!</div>
+      <p style="color:var(--text-dim)">Streamlit não é uma linguagem nova. É <strong style="color:var(--text)">o mesmo Python</strong> que você já conhece, com funções extras que geram interface. Se você sabe usar <code>print()</code>, <code>input()</code> e <code>if</code>, já sabe usar Streamlit!</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗ -->
+<!-- ║              PROJETO FINAL: SISTEMA DE LOJA                  ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════╝ -->
+
+<div class="chapter-divider" id="projeto-final">
+  <span class="chapter-icon">🏪</span>
+  <div class="chapter-number">Projeto Final</div>
+  <h2 class="grad-projeto">Sistema de Loja</h2>
+  <p class="chapter-subtitle">Streamlit + TinyDB = Sistema completo com interface e banco de dados!</p>
+</div>
+
+<section class="step-section">
+  <div class="step-header">
+    <div class="step-number sn-main">🎯</div>
+    <div>
+      <div class="step-title">O que vamos construir</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Juntando tudo num projeto real</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="concept">
+      <div class="concept-title">🏪 Sistema de Loja Completo</div>
+      <p>Agora vamos juntar <strong style="color:var(--text)">TUDO</strong>: Streamlit para a interface + TinyDB para o banco de dados. O resultado: um sistema de loja completo, com abas, botões e dados que persistem!</p>
+    </div>
+
+    <div class="keyword-map stagger" id="projetoMap">
+      <div class="keyword-chip"><span class="emoji">📦</span><span class="kw-name">Estoque</span><span class="kw-desc">Ver todos os produtos</span></div>
+      <div class="keyword-chip"><span class="emoji">➕</span><span class="kw-name">Cadastrar</span><span class="kw-desc">Adicionar novos produtos</span></div>
+      <div class="keyword-chip"><span class="emoji">🛒</span><span class="kw-name">Vender</span><span class="kw-desc">Registrar vendas</span></div>
+      <div class="keyword-chip"><span class="emoji">📊</span><span class="kw-name">Vendas</span><span class="kw-desc">Histórico e faturamento</span></div>
+    </div>
+
+    <div class="layer-stack stagger" style="margin-top:24px" id="projetoStack">
+      <div class="layer-item layer-streamlit">🎨 Streamlit (Interface)<div class="layer-sub">Abas, botões, tabelas, inputs — tudo no navegador</div></div>
+      <div class="layer-arrow">↕️ dados em dicionários</div>
+      <div class="layer-item layer-tinydb">💾 TinyDB (Banco de Dados)<div class="layer-sub">Tabelas: estoque + vendas</div></div>
+      <div class="layer-arrow">↕️ salva automaticamente</div>
+      <div class="layer-item layer-file">📄 loja.json<div class="layer-sub">Dados persistem entre sessões</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- PROJETO: CONFIGURAÇÃO -->
+<section class="step-section" id="projeto-config">
+  <div class="step-header">
+    <div class="step-number" style="background:var(--python)">⚙️</div>
+    <div>
+      <div class="step-title">Configuração Inicial</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Imports, banco e abas</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:16px">O primeiro bloco do código conecta o banco de dados e cria as abas da interface:</p>
+
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app.py — Configuração</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div>
+      <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB, where
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+db = <span class="fn">TinyDB</span>(<span class="st">"loja.json"</span>)
+estoque = db.<span class="fn">table</span>(<span class="st">"estoque"</span>)          <span class="cm"># Gaveta de produtos</span>
+vendas = db.<span class="fn">table</span>(<span class="st">"vendas"</span>)            <span class="cm"># Gaveta de vendas</span>
+
+st.<span class="fn">set_page_config</span>(page_title=<span class="st">"Sistema Loja"</span>, page_icon=<span class="st">"🏪"</span>, layout=<span class="st">"wide"</span>)
+st.<span class="fn">title</span>(<span class="st">"🏪 Sistema de Loja"</span>)
+
+aba_estoque, aba_cadastro, aba_venda, aba_vendas = st.<span class="fn">tabs</span>([
+    <span class="st">"📦 Estoque"</span>, <span class="st">"➕ Cadastrar Produto"</span>,
+    <span class="st">"🛒 Vender Produto"</span>, <span class="st">"📊 Vendas"</span>
+])</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">💡</span>
+      <div class="tip-content">Perceba: estamos usando <strong>tabelas do TinyDB</strong> para separar estoque e vendas — como duas gavetas no mesmo armário. E <strong>abas do Streamlit</strong> para organizar a interface.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- PROJETO: ABA ESTOQUE -->
+<section class="step-section" id="projeto-estoque">
+  <div class="step-header">
+    <div class="step-number sn-blue">📦</div>
+    <div>
+      <div class="step-title">Aba 1 — Estoque</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Listando todos os produtos</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:16px">Esta aba mostra todos os produtos cadastrados em formato de tabela:</p>
+
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app.py — Aba Estoque</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div>
+      <pre>
+<span class="kw">with</span> aba_estoque:
+    st.<span class="fn">header</span>(<span class="st">"Estoque atual"</span>)
+    produtos = estoque.<span class="fn">all</span>()
+    <span class="kw">if</span> <span class="fn">len</span>(produtos) == <span class="num">0</span>:
+        st.<span class="fn">info</span>(<span class="st">"Estoque vazio! Cadastre produtos na aba ao lado."</span>)
+    <span class="kw">else</span>:
+        tabela = []
+        <span class="kw">for</span> p <span class="kw">in</span> produtos:
+            tabela.<span class="fn">append</span>({
+                <span class="st">"ID"</span>: p[<span class="st">"id"</span>],
+                <span class="st">"Produto"</span>: p[<span class="st">"nome"</span>],
+                <span class="st">"Preço (R$)"</span>: <span class="st">f"</span>{p[<span class="st">'preco'</span>]<span class="st">:.2f}"</span>,
+                <span class="st">"Quantidade"</span>: p[<span class="st">"qtd"</span>]
+            })
+        st.<span class="fn">table</span>(tabela)
+        st.<span class="fn">metric</span>(<span class="st">"Total de produtos cadastrados"</span>, <span class="fn">len</span>(produtos))</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">📊</span>
+      <div class="tip-content">Usamos <code>estoque.all()</code> — que você já conhece do TinyDB — para buscar os dados. Depois montamos uma lista de dicionários formatada e passamos para <code>st.table()</code>.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- PROJETO: ABA CADASTRO -->
+<section class="step-section" id="projeto-cadastro">
+  <div class="step-header">
+    <div class="step-number sn-green">➕</div>
+    <div>
+      <div class="step-title">Aba 2 — Cadastrar Produto</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Formulário + validação + insert</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:16px">Esta aba tem um formulário com campos de entrada e um botão de cadastro. Repare nas <strong style="color:var(--accent5)">validações</strong>!</p>
+
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app.py — Aba Cadastrar</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div>
+      <pre>
+<span class="kw">with</span> aba_cadastro:
+    st.<span class="fn">header</span>(<span class="st">"Cadastrar novo produto"</span>)
+    id_produto = st.<span class="fn">number_input</span>(<span class="st">"ID do produto"</span>, min_value=<span class="num">1</span>, step=<span class="num">1</span>, key=<span class="st">"cad_id"</span>)
+    nome_produto = st.<span class="fn">text_input</span>(<span class="st">"Nome do produto"</span>, key=<span class="st">"cad_nome"</span>)
+    preco_produto = st.<span class="fn">number_input</span>(
+        <span class="st">"Preço (R$)"</span>, min_value=<span class="num">0.0</span>, step=<span class="num">0.5</span>,
+        format=<span class="st">"%.2f"</span>, key=<span class="st">"cad_preco"</span>
+    )
+    qtd_produto = st.<span class="fn">number_input</span>(
+        <span class="st">"Quantidade em estoque"</span>, min_value=<span class="num">0</span>, step=<span class="num">1</span>, key=<span class="st">"cad_qtd"</span>
+    )
+
+    <span class="kw">if</span> st.<span class="fn">button</span>(<span class="st">"Cadastrar Produto"</span>, type=<span class="st">"primary"</span>):
+        <span class="kw">if</span> nome_produto.<span class="fn">strip</span>() == <span class="st">""</span>:
+            st.<span class="fn">error</span>(<span class="st">"Digite o nome do produto!"</span>)
+        <span class="kw">elif</span> estoque.<span class="fn">get</span>(<span class="fn">where</span>(<span class="st">"id"</span>) == <span class="fn">int</span>(id_produto)) <span class="kw">is not</span> <span class="bool">None</span>:
+            st.<span class="fn">error</span>(<span class="st">f"Já existe um produto com ID </span>{<span class="fn">int</span>(id_produto)}<span class="st">!"</span>)
+        <span class="kw">else</span>:
+            estoque.<span class="fn">insert</span>({
+                <span class="st">"id"</span>: <span class="fn">int</span>(id_produto), <span class="st">"nome"</span>: nome_produto.<span class="fn">strip</span>(),
+                <span class="st">"preco"</span>: <span class="fn">float</span>(preco_produto), <span class="st">"qtd"</span>: <span class="fn">int</span>(qtd_produto)
+            })
+            st.<span class="fn">success</span>(<span class="st">f"✅ Produto '</span>{nome_produto}<span class="st">' cadastrado com sucesso!"</span>)
+            st.<span class="fn">rerun</span>()</pre>
+    </div>
+
+    <div class="toggler">
+      <div class="toggler-header" onclick="toggleSection(this)">
+        <span>🔍 Entendendo o código passo a passo</span>
+        <span class="toggler-arrow">▼</span>
+      </div>
+      <div class="toggler-body">
+        <div style="display:grid;gap:10px;margin-top:8px;font-size:0.88rem">
+          <div><code style="color:var(--accent5)">key="cad_id"</code> — <span style="color:var(--text-dim)">Cada input precisa de um <strong>key único</strong> para o Streamlit não confundir os campos entre as abas</span></div>
+          <div><code style="color:var(--accent5)">type="primary"</code> — <span style="color:var(--text-dim)">Faz o botão aparecer colorido (destaque) em vez de cinza</span></div>
+          <div><code style="color:var(--accent5)">nome_produto.strip()</code> — <span style="color:var(--text-dim)">Remove espaços em branco no início e fim do texto</span></div>
+          <div><code style="color:var(--accent5)">estoque.get(where(...))</code> — <span style="color:var(--text-dim)">Busca um único registro (retorna <code>None</code> se não encontrar)</span></div>
+          <div><code style="color:var(--accent5)">st.rerun()</code> — <span style="color:var(--text-dim)">Recarrega a página para atualizar a tabela de estoque</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- PROJETO: ABA VENDA -->
+<section class="step-section" id="projeto-venda">
+  <div class="step-header">
+    <div class="step-number sn-yellow">🛒</div>
+    <div>
+      <div class="step-title">Aba 3 — Vender Produto</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Selectbox + cálculo + update do estoque</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:16px">Esta é a aba mais complexa — combina <code>selectbox</code>, cálculos e atualização do estoque:</p>
+
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app.py — Aba Vender</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41</div>
+      <pre>
+<span class="kw">with</span> aba_venda:
+    st.<span class="fn">header</span>(<span class="st">"Registrar venda"</span>)
+    produtos = estoque.<span class="fn">all</span>()
+    <span class="kw">if</span> <span class="fn">len</span>(produtos) == <span class="num">0</span>:
+        st.<span class="fn">info</span>(<span class="st">"Nenhum produto em estoque para vender."</span>)
+    <span class="kw">else</span>:
+        opcoes = [<span class="st">"Selecione um produto..."</span>]
+        mapa_produtos = {}
+        <span class="kw">for</span> p <span class="kw">in</span> produtos:
+            <span class="kw">if</span> p[<span class="st">"qtd"</span>] > <span class="num">0</span>:
+                label = <span class="st">f"#</span>{p[<span class="st">'id'</span>]}<span class="st"> - </span>{p[<span class="st">'nome'</span>]}<span class="st"> (estoque: </span>{p[<span class="st">'qtd'</span>]}<span class="st">)"</span>
+                opcoes.<span class="fn">append</span>(label)
+                mapa_produtos[label] = p
+
+        produto_escolhido = st.<span class="fn">selectbox</span>(<span class="st">"Produto"</span>, opcoes, key=<span class="st">"venda_prod"</span>)
+
+        <span class="kw">if</span> produto_escolhido != <span class="st">"Selecione um produto..."</span>:
+            produto = mapa_produtos[produto_escolhido]
+            qtd_venda = st.<span class="fn">number_input</span>(
+                <span class="st">"Quantidade"</span>, min_value=<span class="num">1</span>,
+                max_value=produto[<span class="st">"qtd"</span>], step=<span class="num">1</span>, key=<span class="st">"venda_qtd"</span>
+            )
+            cliente = st.<span class="fn">text_input</span>(<span class="st">"Nome do cliente"</span>, key=<span class="st">"venda_cliente"</span>)
+            total = produto[<span class="st">"preco"</span>] * qtd_venda
+            st.<span class="fn">info</span>(<span class="st">f"💰 Total da venda: **R$ </span>{total<span class="st">:.2f}**"</span>)
+
+            <span class="kw">if</span> st.<span class="fn">button</span>(<span class="st">"Confirmar Venda"</span>, type=<span class="st">"primary"</span>):
+                <span class="kw">if</span> cliente.<span class="fn">strip</span>() == <span class="st">""</span>:
+                    st.<span class="fn">error</span>(<span class="st">"Digite o nome do cliente!"</span>)
+                <span class="kw">else</span>:
+                    vendas.<span class="fn">insert</span>({
+                        <span class="st">"id_produto"</span>: produto[<span class="st">"id"</span>],
+                        <span class="st">"produto_nome"</span>: produto[<span class="st">"nome"</span>],
+                        <span class="st">"qtd_venda"</span>: <span class="fn">int</span>(qtd_venda),
+                        <span class="st">"preco_unit"</span>: produto[<span class="st">"preco"</span>],
+                        <span class="st">"total"</span>: total,
+                        <span class="st">"cliente"</span>: cliente.<span class="fn">strip</span>()
+                    })
+                    estoque.<span class="fn">update</span>(
+                        {<span class="st">"qtd"</span>: produto[<span class="st">"qtd"</span>] - <span class="fn">int</span>(qtd_venda)},
+                        <span class="fn">where</span>(<span class="st">"id"</span>) == produto[<span class="st">"id"</span>]
+                    )
+                    st.<span class="fn">success</span>(<span class="st">f"✅ Venda registrada! Total: R$ </span>{total<span class="st">:.2f}"</span>)
+                    st.<span class="fn">balloons</span>()
+                    st.<span class="fn">rerun</span>()
+
+        <span class="kw">if</span> <span class="fn">len</span>(opcoes) == <span class="num">1</span>:
+            st.<span class="fn">warning</span>(<span class="st">"Todos os produtos estão com estoque zerado!"</span>)</pre>
+    </div>
+
+    <div class="toggler">
+      <div class="toggler-header" onclick="toggleSection(this)">
+        <span>🔍 O que está acontecendo aqui?</span>
+        <span class="toggler-arrow">▼</span>
+      </div>
+      <div class="toggler-body">
+        <div style="display:grid;gap:12px;margin-top:8px;font-size:0.88rem;color:var(--text-dim)">
+          <div><strong style="color:var(--accent5)">Linhas 7-13:</strong> Montamos as opções do dropdown filtrando só produtos com estoque > 0. O <code>mapa_produtos</code> conecta o texto do dropdown ao dicionário real.</div>
+          <div><strong style="color:var(--accent5)">Linha 15:</strong> O <code>selectbox</code> mostra a lista de produtos. O usuário clica e escolhe — sem digitar nada!</div>
+          <div><strong style="color:var(--accent5)">Linhas 19-22:</strong> <code>max_value=produto["qtd"]</code> impede que o usuário venda mais do que tem em estoque.</div>
+          <div><strong style="color:var(--accent5)">Linhas 31-33:</strong> Registramos a venda com <code>vendas.insert()</code> — salvando quem comprou, o que, quanto e o total.</div>
+          <div><strong style="color:var(--accent5)">Linhas 34-36:</strong> Atualizamos o estoque com <code>estoque.update()</code> — diminuindo a quantidade vendida.</div>
+          <div><strong style="color:var(--accent5)">Linha 38:</strong> <code>st.balloons()</code> — solta balões na tela! 🎈 Uma surpresa divertida do Streamlit.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- PROJETO: ABA VENDAS -->
+<section class="step-section" id="projeto-vendas">
+  <div class="step-header">
+    <div class="step-number sn-purple">📊</div>
+    <div>
+      <div class="step-title">Aba 4 — Histórico de Vendas</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Tabela + métricas + faturamento</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="code-block with-lines" style="position:relative">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">app.py — Aba Vendas</span><span class="lang-badge python">Python</span></div>
+      </div>
+      <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20</div>
+      <pre>
+<span class="kw">with</span> aba_vendas:
+    st.<span class="fn">header</span>(<span class="st">"Histórico de vendas"</span>)
+    lista_vendas = vendas.<span class="fn">all</span>()
+    <span class="kw">if</span> <span class="fn">len</span>(lista_vendas) == <span class="num">0</span>:
+        st.<span class="fn">info</span>(<span class="st">"Nenhuma venda registrada ainda."</span>)
+    <span class="kw">else</span>:
+        tabela_vendas = []
+        soma_total = <span class="num">0</span>
+        <span class="kw">for</span> v <span class="kw">in</span> lista_vendas:
+            soma_total = soma_total + v[<span class="st">"total"</span>]
+            tabela_vendas.<span class="fn">append</span>({
+                <span class="st">"Cliente"</span>: v[<span class="st">"cliente"</span>],
+                <span class="st">"Produto"</span>: v[<span class="st">"produto_nome"</span>],
+                <span class="st">"Qtd"</span>: v[<span class="st">"qtd_venda"</span>],
+                <span class="st">"Preço Unit. (R$)"</span>: <span class="st">f"</span>{v[<span class="st">'preco_unit'</span>]<span class="st">:.2f}"</span>,
+                <span class="st">"Total (R$)"</span>: <span class="st">f"</span>{v[<span class="st">'total'</span>]<span class="st">:.2f}"</span>
+            })
+        st.<span class="fn">table</span>(tabela_vendas)
+        col1, col2 = st.<span class="fn">columns</span>(<span class="num">2</span>)
+        col1.<span class="fn">metric</span>(<span class="st">"Total de vendas"</span>, <span class="fn">len</span>(lista_vendas))
+        col2.<span class="fn">metric</span>(<span class="st">"Faturamento total"</span>, <span class="st">f"R$ </span>{soma_total<span class="st">:.2f}"</span>)</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">📈</span>
+      <div class="tip-content">Aqui usamos <code>st.columns(2)</code> para colocar duas métricas lado a lado: total de vendas e faturamento. É o mesmo padrão que dashboards profissionais usam!</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- COMO RODAR -->
+<section class="step-section" id="projeto-rodar">
+  <div class="step-header">
+    <div class="step-number" style="background:var(--accent7)">🚀</div>
+    <div>
+      <div class="step-title">Como rodar o projeto</div>
+      <div style="color:var(--text-dim);font-size:0.88rem">Dois comandos e pronto!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="warning">
+      <span class="warning-icon">📋</span>
+      <div style="color:var(--text-dim);font-size:0.9rem">
+        <strong style="color:var(--accent5)">Passo a passo:</strong>
+        <div style="margin-top:12px;display:grid;gap:8px">
+          <div><strong style="color:var(--text)">1.</strong> Salve todo o código num arquivo chamado <code>app.py</code></div>
+          <div><strong style="color:var(--text)">2.</strong> Instale as dependências (se ainda não instalou)</div>
+          <div><strong style="color:var(--text)">3.</strong> Execute o app com o comando abaixo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="filename">Terminal</span><span class="lang-badge terminal">terminal</span></div>
+      </div>
+      <pre>
+<span class="cm"># Instalar as bibliotecas:</span>
+<span class="fn">pip</span> <span class="st">install</span> streamlit tinydb
+
+<span class="cm"># Rodar o app:</span>
+<span class="fn">streamlit</span> run app.py</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">🌐</span>
+      <div class="tip-content">O navegador abre automaticamente com o sistema funcionando! Cadastre produtos, faça vendas e <strong>feche o terminal</strong>. Abra de novo com <code>streamlit run app.py</code> — <strong style="color:var(--accent3)">os dados continuam lá</strong> graças ao TinyDB! 🎉</div>
+    </div>
+
+    <div class="toggler" style="margin-top:16px">
+      <div class="toggler-header" onclick="toggleSection(this)">
+        <span>📄 Ver código completo do app.py (tudo junto)</span>
+        <span class="toggler-arrow">▼</span>
+      </div>
+      <div class="toggler-body">
+        <div class="code-block with-lines" style="position:relative">
+          <div class="code-header">
+            <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <div style="display:flex;align-items:center;gap:8px"><span class="filename">app.py — Código Completo</span><span class="lang-badge python">Python</span></div>
+          </div>
+          <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br>76<br>77<br>78<br>79<br>80<br>81<br>82<br>83<br>84<br>85<br>86<br>87<br>88<br>89<br>90<br>91<br>92<br>93<br>94<br>95<br>96<br>97</div>
+          <pre>
+<span class="kw">from</span> tinydb <span class="kw">import</span> TinyDB, where
+<span class="kw">import</span> streamlit <span class="kw">as</span> st
+
+db = <span class="fn">TinyDB</span>(<span class="st">"loja.json"</span>)
+estoque = db.<span class="fn">table</span>(<span class="st">"estoque"</span>)
+vendas = db.<span class="fn">table</span>(<span class="st">"vendas"</span>)
+
+st.<span class="fn">set_page_config</span>(page_title=<span class="st">"Sistema Loja"</span>, page_icon=<span class="st">"🏪"</span>, layout=<span class="st">"wide"</span>)
+st.<span class="fn">title</span>(<span class="st">"🏪 Sistema de Loja"</span>)
+
+aba_estoque, aba_cadastro, aba_venda, aba_vendas = st.<span class="fn">tabs</span>([
+    <span class="st">"📦 Estoque"</span>, <span class="st">"➕ Cadastrar Produto"</span>,
+    <span class="st">"🛒 Vender Produto"</span>, <span class="st">"📊 Vendas"</span>
+])
+
+<span class="cm"># ═══ ABA 1: ESTOQUE ═══</span>
+<span class="kw">with</span> aba_estoque:
+    st.<span class="fn">header</span>(<span class="st">"Estoque atual"</span>)
+    produtos = estoque.<span class="fn">all</span>()
+    <span class="kw">if</span> <span class="fn">len</span>(produtos) == <span class="num">0</span>:
+        st.<span class="fn">info</span>(<span class="st">"Estoque vazio! Cadastre produtos na aba ao lado."</span>)
+    <span class="kw">else</span>:
+        tabela = []
+        <span class="kw">for</span> p <span class="kw">in</span> produtos:
+            tabela.<span class="fn">append</span>({
+                <span class="st">"ID"</span>: p[<span class="st">"id"</span>], <span class="st">"Produto"</span>: p[<span class="st">"nome"</span>],
+                <span class="st">"Preço (R$)"</span>: <span class="st">f"</span>{p[<span class="st">'preco'</span>]<span class="st">:.2f}"</span>,
+                <span class="st">"Quantidade"</span>: p[<span class="st">"qtd"</span>]
+            })
+        st.<span class="fn">table</span>(tabela)
+        st.<span class="fn">metric</span>(<span class="st">"Total de produtos cadastrados"</span>, <span class="fn">len</span>(produtos))
+
+<span class="cm"># ═══ ABA 2: CADASTRAR ═══</span>
+<span class="kw">with</span> aba_cadastro:
+    st.<span class="fn">header</span>(<span class="st">"Cadastrar novo produto"</span>)
+    id_produto = st.<span class="fn">number_input</span>(<span class="st">"ID do produto"</span>, min_value=<span class="num">1</span>, step=<span class="num">1</span>, key=<span class="st">"cad_id"</span>)
+    nome_produto = st.<span class="fn">text_input</span>(<span class="st">"Nome do produto"</span>, key=<span class="st">"cad_nome"</span>)
+    preco_produto = st.<span class="fn">number_input</span>(<span class="st">"Preço (R$)"</span>, min_value=<span class="num">0.0</span>, step=<span class="num">0.5</span>, format=<span class="st">"%.2f"</span>, key=<span class="st">"cad_preco"</span>)
+    qtd_produto = st.<span class="fn">number_input</span>(<span class="st">"Quantidade em estoque"</span>, min_value=<span class="num">0</span>, step=<span class="num">1</span>, key=<span class="st">"cad_qtd"</span>)
+
+    <span class="kw">if</span> st.<span class="fn">button</span>(<span class="st">"Cadastrar Produto"</span>, type=<span class="st">"primary"</span>):
+        <span class="kw">if</span> nome_produto.<span class="fn">strip</span>() == <span class="st">""</span>:
+            st.<span class="fn">error</span>(<span class="st">"Digite o nome do produto!"</span>)
+        <span class="kw">elif</span> estoque.<span class="fn">get</span>(<span class="fn">where</span>(<span class="st">"id"</span>) == <span class="fn">int</span>(id_produto)) <span class="kw">is not</span> <span class="bool">None</span>:
+            st.<span class="fn">error</span>(<span class="st">f"Já existe um produto com ID </span>{<span class="fn">int</span>(id_produto)}<span class="st">!"</span>)
+        <span class="kw">else</span>:
+            estoque.<span class="fn">insert</span>({
+                <span class="st">"id"</span>: <span class="fn">int</span>(id_produto), <span class="st">"nome"</span>: nome_produto.<span class="fn">strip</span>(),
+                <span class="st">"preco"</span>: <span class="fn">float</span>(preco_produto), <span class="st">"qtd"</span>: <span class="fn">int</span>(qtd_produto)
+            })
+            st.<span class="fn">success</span>(<span class="st">f"✅ Produto '</span>{nome_produto}<span class="st">' cadastrado com sucesso!"</span>)
+            st.<span class="fn">rerun</span>()
+
+<span class="cm"># ═══ ABA 3: VENDER ═══</span>
+<span class="kw">with</span> aba_venda:
+    st.<span class="fn">header</span>(<span class="st">"Registrar venda"</span>)
+    produtos = estoque.<span class="fn">all</span>()
+    <span class="kw">if</span> <span class="fn">len</span>(produtos) == <span class="num">0</span>:
+        st.<span class="fn">info</span>(<span class="st">"Nenhum produto em estoque para vender."</span>)
+    <span class="kw">else</span>:
+        opcoes = [<span class="st">"Selecione um produto..."</span>]
+        mapa_produtos = {}
+        <span class="kw">for</span> p <span class="kw">in</span> produtos:
+            <span class="kw">if</span> p[<span class="st">"qtd"</span>] > <span class="num">0</span>:
+                label = <span class="st">f"#</span>{p[<span class="st">'id'</span>]}<span class="st"> - </span>{p[<span class="st">'nome'</span>]}<span class="st"> (estoque: </span>{p[<span class="st">'qtd'</span>]}<span class="st">)"</span>
+                opcoes.<span class="fn">append</span>(label)
+                mapa_produtos[label] = p
+        produto_escolhido = st.<span class="fn">selectbox</span>(<span class="st">"Produto"</span>, opcoes, key=<span class="st">"venda_prod"</span>)
+        <span class="kw">if</span> produto_escolhido != <span class="st">"Selecione um produto..."</span>:
+            produto = mapa_produtos[produto_escolhido]
+            qtd_venda = st.<span class="fn">number_input</span>(<span class="st">"Quantidade"</span>, min_value=<span class="num">1</span>, max_value=produto[<span class="st">"qtd"</span>], step=<span class="num">1</span>, key=<span class="st">"venda_qtd"</span>)
+            cliente = st.<span class="fn">text_input</span>(<span class="st">"Nome do cliente"</span>, key=<span class="st">"venda_cliente"</span>)
+            total = produto[<span class="st">"preco"</span>] * qtd_venda
+            st.<span class="fn">info</span>(<span class="st">f"💰 Total da venda: **R$ </span>{total<span class="st">:.2f}**"</span>)
+            <span class="kw">if</span> st.<span class="fn">button</span>(<span class="st">"Confirmar Venda"</span>, type=<span class="st">"primary"</span>):
+                <span class="kw">if</span> cliente.<span class="fn">strip</span>() == <span class="st">""</span>:
+                    st.<span class="fn">error</span>(<span class="st">"Digite o nome do cliente!"</span>)
+                <span class="kw">else</span>:
+                    vendas.<span class="fn">insert</span>({
+                        <span class="st">"id_produto"</span>: produto[<span class="st">"id"</span>], <span class="st">"produto_nome"</span>: produto[<span class="st">"nome"</span>],
+                        <span class="st">"qtd_venda"</span>: <span class="fn">int</span>(qtd_venda), <span class="st">"preco_unit"</span>: produto[<span class="st">"preco"</span>],
+                        <span class="st">"total"</span>: total, <span class="st">"cliente"</span>: cliente.<span class="fn">strip</span>()
+                    })
+                    estoque.<span class="fn">update</span>({<span class="st">"qtd"</span>: produto[<span class="st">"qtd"</span>] - <span class="fn">int</span>(qtd_venda)}, <span class="fn">where</span>(<span class="st">"id"</span>) == produto[<span class="st">"id"</span>])
+                    st.<span class="fn">success</span>(<span class="st">f"✅ Venda registrada! Total: R$ </span>{total<span class="st">:.2f}"</span>)
+                    st.<span class="fn">balloons</span>()
+                    st.<span class="fn">rerun</span>()
+        <span class="kw">if</span> <span class="fn">len</span>(opcoes) == <span class="num">1</span>:
+            st.<span class="fn">warning</span>(<span class="st">"Todos os produtos estão com estoque zerado!"</span>)
+
+<span class="cm"># ═══ ABA 4: HISTÓRICO DE VENDAS ═══</span>
+<span class="kw">with</span> aba_vendas:
+    st.<span class="fn">header</span>(<span class="st">"Histórico de vendas"</span>)
+    lista_vendas = vendas.<span class="fn">all</span>()
+    <span class="kw">if</span> <span class="fn">len</span>(lista_vendas) == <span class="num">0</span>:
+        st.<span class="fn">info</span>(<span class="st">"Nenhuma venda registrada ainda."</span>)
+    <span class="kw">else</span>:
+        tabela_vendas = []
+        soma_total = <span class="num">0</span>
+        <span class="kw">for</span> v <span class="kw">in</span> lista_vendas:
+            soma_total = soma_total + v[<span class="st">"total"</span>]
+            tabela_vendas.<span class="fn">append</span>({
+                <span class="st">"Cliente"</span>: v[<span class="st">"cliente"</span>], <span class="st">"Produto"</span>: v[<span class="st">"produto_nome"</span>],
+                <span class="st">"Qtd"</span>: v[<span class="st">"qtd_venda"</span>],
+                <span class="st">"Preço Unit. (R$)"</span>: <span class="st">f"</span>{v[<span class="st">'preco_unit'</span>]<span class="st">:.2f}"</span>,
+                <span class="st">"Total (R$)"</span>: <span class="st">f"</span>{v[<span class="st">'total'</span>]<span class="st">:.2f}"</span>
+            })
+        st.<span class="fn">table</span>(tabela_vendas)
+        col1, col2 = st.<span class="fn">columns</span>(<span class="num">2</span>)
+        col1.<span class="fn">metric</span>(<span class="st">"Total de vendas"</span>, <span class="fn">len</span>(lista_vendas))
+        col2.<span class="fn">metric</span>(<span class="st">"Faturamento total"</span>, <span class="st">f"R$ </span>{soma_total<span class="st">:.2f}"</span>)</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-connector"><div class="line"></div></div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- ENCERRAMENTO -->
+<!-- ════════════════════════════════════════ -->
+<section class="step-section" id="encerramento" style="text-align:center;padding:60px 20px">
+  <div style="font-size:3.5rem;margin-bottom:16px;animation:bounce 2s ease-in-out infinite;display:inline-block">🏆</div>
+  <h2 style="font-size:2rem;font-weight:900;margin-bottom:16px;background:linear-gradient(135deg,var(--python),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Parabéns, Programador(a)!</h2>
+  <p style="color:var(--text-dim);max-width:550px;margin:0 auto 30px;font-size:1.05rem">Você saiu do <strong style="color:var(--text-dim)">terminal preto</strong> e construiu um <strong style="color:var(--accent5)">sistema completo</strong> com <strong style="color:var(--accent3)">banco de dados</strong> e <strong style="color:var(--streamlit)">interface gráfica</strong>!</p>
+
+  <div class="card" style="text-align:left;max-width:600px;margin:0 auto">
+    <h3 style="margin-bottom:16px;color:var(--accent5)">🎓 Resumo de tudo que você aprendeu</h3>
+    <div style="display:grid;gap:10px;color:var(--text-dim);font-size:0.92rem">
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">TinyDB</strong> — persistência de dados sem SQL</div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">CRUD completo</strong> — insert, all, search, update, remove</div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">Tabelas TinyDB</strong> — organizar dados em gavetas</div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">Streamlit</strong> — interface gráfica com Python puro</div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">Textos, inputs, botões, tabelas, abas, métricas</strong></div>
+      <div style="display:flex;gap:10px"><span style="color:var(--accent3)">✅</span> <strong style="color:var(--text)">Projeto completo</strong> — sistema de loja com banco + interface</div>
+    </div>
+
+    <p style="text-align:center;color:var(--accent6);font-family:'Caveat',cursive;font-size:1.5rem;margin-top:24px">"Você saiu do terminal preto e construiu um sistema completo. Parabéns, programador(a)!" 🐍🏆</p>
+  </div>
+</section>
+
+<footer>
+  Feito com <span class="heart">💜</span> por <a href="https://github.com/kelsonvictr" target="_blank">Kelson Almeida</a> — João Pessoa, PB<br>
+  <span style="font-size:0.75rem;margin-top:8px;display:block">Programa AI — Bootcamp: Programação para Iniciantes</span>
+</footer>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════
+// SCROLL PROGRESS
+// ═══════════════════════════════════════════
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+  document.getElementById('progressBar').style.width=pct+'%';
+});
+
+// ═══════════════════════════════════════════
+// INTERSECTION OBSERVER — REVEAL ON SCROLL
+// ═══════════════════════════════════════════
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+},{threshold:0.12});
+document.querySelectorAll('.step-section,.stagger').forEach(s=>observer.observe(s));
+
+// ═══════════════════════════════════════════
+// SIDEBAR NAV
+// ═══════════════════════════════════════════
+function toggleSidebar(){
+  document.getElementById('sidebarNav').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function goTo(id){
+  toggleSidebar();
+  setTimeout(()=>{
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+  },300);
+}
+
+// ═══════════════════════════════════════════
+// TOGGLER
+// ═══════════════════════════════════════════
+function toggleSection(header){
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════
+// TINYDB DEMO — INTERACTIVE TERMINAL
+// ═══════════════════════════════════════════
+let tinydbData=[];
+let tinydbId=0;
+
+function resetTinydbDemo(){
+  tinydbData=[];
+  tinydbId=0;
+  renderTinydbTable();
+  const body=document.getElementById('tinydbDemoBody');
+  body.innerHTML='<div class="demo-line show"><span class="dim">Demo resetada! Clique num botão para começar... 🐍</span></div>';
+}
+
+function renderTinydbTable(){
+  const tb=document.getElementById('tinydbTable');
+  if(tinydbData.length===0){
+    tb.innerHTML='<tr style="color:var(--text-dim);font-style:italic"><td colspan="4" style="text-align:center;padding:20px">Banco vazio — clique INSERT para adicionar dados!</td></tr>';
+    return;
+  }
+  tb.innerHTML=tinydbData.map((a,i)=>`<tr class="db-row-new" style="animation-delay:${i*0.05}s"><td style="color:var(--accent5);font-weight:700">${a.id}</td><td>${a.nome}</td><td style="color:var(--text-dim)">${a.idade}</td><td style="color:var(--text-dim)">${a.curso}</td></tr>`).join('');
+}
+
+async function demoTinyDB(type){
+  const body=document.getElementById('tinydbDemoBody');
+  body.innerHTML='';
+  let lines=[];
+
+  if(type==='insert'){
+    const nomes=[
+      {nome:'Ana',idade:22,curso:'Python'},
+      {nome:'João',idade:25,curso:'Java'},
+      {nome:'Maria',idade:20,curso:'JavaScript'},
+      {nome:'Carlos',idade:28,curso:'Python'},
+    ];
+    const aluno=nomes[tinydbId % nomes.length];
+    tinydbId++;
+    const newAluno={id:tinydbId,...aluno};
+
+    lines=[
+      {delay:200,html:'<span class="op-insert">INSERT</span> <span class="dim">— Cadastrando aluno...</span>'},
+      {delay:300,html:''},
+      {delay:100,html:'<span class="arrow">>>> </span>db.<span class="op-insert">insert</span>({'},
+      {delay:100,html:'      <span class="json-key">"nome"</span>: <span class="json-val">"'+aluno.nome+'"</span>,'},
+      {delay:100,html:'      <span class="json-key">"idade"</span>: <span class="json-num">'+aluno.idade+'</span>,'},
+      {delay:100,html:'      <span class="json-key">"curso"</span>: <span class="json-val">"'+aluno.curso+'"</span>'},
+      {delay:100,html:'    })'},
+      {delay:500,html:''},
+      {delay:200,html:'<span class="status-ok">✅ Dado inserido com sucesso!</span> (ID: <span class="json-num">'+tinydbId+'</span>)'},
+      {delay:100,html:'<span class="dim">📄 Arquivo alunos.json atualizado automaticamente.</span>'},
+    ];
+    tinydbData.push(newAluno);
+    setTimeout(()=>renderTinydbTable(),1800);
+
+  } else if(type==='all'){
+    lines=[
+      {delay:200,html:'<span class="op-read">READ</span> <span class="dim">— Listando todos os registros...</span>'},
+      {delay:300,html:''},
+      {delay:100,html:'<span class="arrow">>>> </span>dados = db.<span class="op-read">all</span>()'},
+      {delay:300,html:''},
+    ];
+    if(tinydbData.length===0){
+      lines.push({delay:200,html:'<span class="dim">📭 Nenhum registro encontrado. Use INSERT primeiro!</span>'});
+    } else {
+      lines.push({delay:100,html:'<span class="status-ok">📂 '+tinydbData.length+' registro(s) encontrado(s):</span>'});
+      lines.push({delay:100,html:'['});
+      tinydbData.forEach((a,i)=>{
+        const comma=i<tinydbData.length-1?',':'';
+        lines.push({delay:120,html:'  {<span class="json-key">"nome"</span>: <span class="json-val">"'+a.nome+'"</span>, <span class="json-key">"idade"</span>: <span class="json-num">'+a.idade+'</span>, <span class="json-key">"curso"</span>: <span class="json-val">"'+a.curso+'"</span>}'+comma});
+      });
+      lines.push({delay:100,html:']'});
+    }
+
+  } else if(type==='search'){
+    lines=[
+      {delay:200,html:'<span class="op-search">SEARCH</span> <span class="dim">— Buscando por nome...</span>'},
+      {delay:300,html:''},
+      {delay:100,html:'<span class="arrow">>>> </span>resultado = db.<span class="op-search">search</span>(<span class="op-search">where</span>(<span class="json-val">"nome"</span>) == <span class="json-val">"Ana"</span>)'},
+      {delay:500,html:''},
+    ];
+    const found=tinydbData.filter(a=>a.nome==='Ana');
+    if(found.length===0){
+      lines.push({delay:200,html:'<span class="dim">🔍 Nenhum resultado para "Ana". Insira dados primeiro!</span>'});
+    } else {
+      lines.push({delay:200,html:'<span class="status-ok">🔍 '+found.length+' resultado(s):</span>'});
+      found.forEach(a=>{
+        lines.push({delay:150,html:'  {<span class="json-key">"nome"</span>: <span class="json-val">"'+a.nome+'"</span>, <span class="json-key">"idade"</span>: <span class="json-num">'+a.idade+'</span>, <span class="json-key">"curso"</span>: <span class="json-val">"'+a.curso+'"</span>}'});
+      });
+    }
+
+  } else if(type==='update'){
+    lines=[
+      {delay:200,html:'<span class="op-update">UPDATE</span> <span class="dim">— Atualizando registro...</span>'},
+      {delay:300,html:''},
+      {delay:100,html:'<span class="arrow">>>> </span>db.<span class="op-update">update</span>({<span class="json-key">"idade"</span>: <span class="json-num">23</span>}, <span class="op-search">where</span>(<span class="json-val">"nome"</span>) == <span class="json-val">"Ana"</span>)'},
+      {delay:500,html:''},
+    ];
+    const idx=tinydbData.findIndex(a=>a.nome==='Ana');
+    if(idx===-1){
+      lines.push({delay:200,html:'<span class="dim">⚠️ Nenhum registro "Ana" encontrado para atualizar. Use INSERT primeiro!</span>'});
+    } else {
+      tinydbData[idx].idade=23;
+      lines.push({delay:200,html:'<span class="status-ok">✅ Idade de Ana atualizada para 23!</span>'});
+      lines.push({delay:100,html:'<span class="dim">📄 Arquivo alunos.json atualizado.</span>'});
+      setTimeout(()=>renderTinydbTable(),1400);
+    }
+
+  } else if(type==='remove'){
+    lines=[
+      {delay:200,html:'<span class="op-remove">REMOVE</span> <span class="dim">— Removendo registro...</span>'},
+      {delay:300,html:''},
+      {delay:100,html:'<span class="arrow">>>> </span>db.<span class="op-remove">remove</span>(<span class="op-search">where</span>(<span class="json-val">"nome"</span>) == <span class="json-val">"João"</span>)'},
+      {delay:500,html:''},
+    ];
+    const idx=tinydbData.findIndex(a=>a.nome==='João');
+    if(idx===-1){
+      lines.push({delay:200,html:'<span class="dim">⚠️ Nenhum registro "João" encontrado para remover.</span>'});
+    } else {
+      tinydbData.splice(idx,1);
+      lines.push({delay:200,html:'<span class="status-ok">✅ Aluno "João" removido do banco!</span>'});
+      lines.push({delay:100,html:'<span class="dim">📄 Arquivo alunos.json atualizado.</span>'});
+      setTimeout(()=>renderTinydbTable(),1400);
+    }
+  }
+
+  for(const line of lines){
+    await new Promise(r=>setTimeout(r,line.delay));
+    const div=document.createElement('div');
+    div.className='demo-line';
+    div.innerHTML=line.html;
+    body.appendChild(div);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>div.classList.add('show')));
+    body.scrollTop=body.scrollHeight;
+  }
+}
+</script>
+</body>
+</html>
